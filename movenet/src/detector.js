@@ -1,7 +1,8 @@
 // Import TensorFlow.js and the MoveNet pose detection model.
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import * as tf from '@tensorflow/tfjs';
-import {isRightArmRaised} from './movement-calculations';
+import {isPositionAFlap} from './movement-calculations';
+import { drawSkeleton, drawKeypoints, incrementFlapCounter} from './draw';
 
 
 // Use the GPU-accelerated backend for faster inference.
@@ -11,6 +12,8 @@ await tf.setBackend('webgl');
 const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+
+export {ctx};
 
 // Request webcam access and wait until the video metadata is ready.
 async function setupCamera() {
@@ -23,27 +26,6 @@ async function setupCamera() {
   return new Promise(resolve => {
     video.onloadedmetadata = () => resolve(video);
   });
-}
-
-// Draw visible keypoints (joints) on the canvas.
-function drawKeypoints(keypoints) {
-  ctx.fillStyle = 'red';
-
-  keypoints.forEach(kp => {
-    if (kp.score > 0.4) {
-      ctx.beginPath();
-      ctx.arc(kp.x, kp.y, 5, 0, 2 * Math.PI);
-      ctx.fill();
-    }
-  });
-}
-
-// Draw a simple status indicator circle.
-function drawStatusCircle(color) {
-  ctx.beginPath();
-  ctx.arc(30, 30, 12, 0, 2 * Math.PI);
-  ctx.fillStyle = color;
-  ctx.fill();
 }
 
 //creates map for keypoints for easy manipulation of data.  Uses name as key
@@ -72,6 +54,7 @@ async function main() {
       modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
     }
   );
+  console.log("detector up and running");
 
   // Render loop: run pose estimation and draw each frame.
   async function render() {
@@ -81,18 +64,18 @@ async function main() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const pose = poses[0];
+
     drawKeypoints(pose?.keypoints || []);
 
     const kp = keypointsToMap(pose?.keypoints || []);
 
-    if (isRightArmRaised(kp)) {
-        drawStatusCircle('green');
+    drawSkeleton(kp);
 
-    } else {
-      drawStatusCircle('red');
+    if (isPositionAFlap(kp)) {
+        incrementFlapCounter();
     }
 
-    requestAnimationFrame(render); //draws the new frame on the next broswer repaint and calls render continuing the loop
+   requestAnimationFrame(render); //draws the new frame on the next broswer repaint and calls render continuing the loop
   }
 
   render();

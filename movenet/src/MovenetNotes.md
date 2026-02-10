@@ -17,7 +17,7 @@ Keypoint data example:
         name: 'right_wrist',
         x: 412.3,
         y: 218.9,
-        score: 0.97
+        score: 0.97  -confidence it's in the correct position
         }
 
 
@@ -33,4 +33,3 @@ There are 17 keypoints that can be detected:
         'left_knee', 'right_knee',
         'left_ankle', 'right_ankle'
         ]
-        

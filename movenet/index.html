@@ -19,6 +19,20 @@
 <body>
   <video id="video" autoplay playsinline></video>
   <canvas id="canvas"></canvas>
+    <div style="position: absolute; top: 20px; right: 50px; font-size: 32px; font-weight: bold; color: rgb(0, 0, 0); text-shadow: 2px 2px 4px rgba(0,0,0,0.7); z-index: 10;">
+    Flaps:
+  </div>
+  <div id="FlapCounter" style="position: absolute; top: 20px; right: 20px; font-size: 32px; font-weight: bold; color: rgb(34, 157, 30); text-shadow: 2px 2px 4px rgba(0,0,0,0.7); z-index: 10;">
+    0
+  </div>
+
+
+  <div style="position: absolute; top: 70px; right: 120px; font-size: 32px; font-weight: bold; color: rgb(0, 0, 0); text-shadow: 2px 2px 4px rgba(0,0,0,0.7); z-index: 10;">
+    RESET: 
+  </div>
+  <div id="ResetLabel" style="position: absolute; top: 70px; right: 20px; font-size: 32px; font-weight: bold; color: rgb(255, 0, 0); text-shadow: 2px 2px 4px rgba(0,0,0,0.7); z-index: 10;">
+    False
+  </div>
 
   <script type="module" src="src/detector.js"></script>
 </body>

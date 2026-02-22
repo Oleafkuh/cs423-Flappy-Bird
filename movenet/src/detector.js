@@ -1,7 +1,7 @@
 // Import TensorFlow.js and the MoveNet pose detection model.
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import * as tf from '@tensorflow/tfjs';
-import {isPositionAFlap} from './movement-calculations';
+import {isPositionAFlap, isPersonInFrame} from './movement-calculations';
 import { drawSkeleton, drawKeypoints, incrementFlapCounter} from './draw';
 
 
@@ -62,22 +62,23 @@ async function main() {
 
     // Clear previous frame and draw current keypoints.
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     const pose = poses[0];
-
-    drawKeypoints(pose?.keypoints || []);
-
+    
     const kp = keypointsToMap(pose?.keypoints || []);
 
-    drawSkeleton(kp);
+    if (isPersonInFrame(kp)){
+      drawKeypoints(pose?.keypoints || []);
+      drawSkeleton(kp);
 
-    if (isPositionAFlap(kp)) {
-        incrementFlapCounter();
-    }
-
-   requestAnimationFrame(render); //draws the new frame on the next broswer repaint and calls render continuing the loop
+      if (isPositionAFlap(kp)) {
+           incrementFlapCounter();
+      }
   }
 
+   requestAnimationFrame(render); //draws the new frame on the next broswer repaint and calls render continuing the loop
+}
+
+  console.log("Looping render");
   render();
 }
 

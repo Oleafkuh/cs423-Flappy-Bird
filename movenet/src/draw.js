@@ -82,6 +82,11 @@ export function incrementFlapCounter() {
 // display true or false for flap reset
 export function setResetLabel(reset) {
   const resetLabel = document.getElementById('ResetLabel');
-  resetLabel.textContent = reset ? "TRUE" : "FALSE";
   resetLabel.style.color = reset ? "green" : "red";
+}
+
+export function PersonInFrameLabel(bool) {
+  const label = document.getElementById('PersonInFrame');
+  label.textContent = bool ? "IN FRAME FOR CALCULATION" : "GET IN FRAME";
+  label.style.color = bool ? 'green' : 'red';
 }

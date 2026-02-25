@@ -1,22 +1,18 @@
-// ============================================================
-// Flappy Bird – faithful recreation
-// Canvas-based, vanilla JavaScript
-// ============================================================
+// Flappy Bird 
 
 (function () {
   "use strict";
 
-  // ── Canvas setup ──────────────────────────────────────────
+  //Canvas setup 
   const canvas = document.getElementById("gameCanvas");
   const ctx = canvas.getContext("2d");
 
-  // Original Flappy Bird resolution
+  //resolution
   const GAME_WIDTH = 288;
   const GAME_HEIGHT = 512;
   canvas.width = GAME_WIDTH;
   canvas.height = GAME_HEIGHT;
 
-  // Scale canvas to fit viewport while keeping aspect ratio
   function resizeCanvas() {
     const scaleX = window.innerWidth / GAME_WIDTH;
     const scaleY = window.innerHeight / GAME_HEIGHT;
@@ -27,7 +23,6 @@
   window.addEventListener("resize", resizeCanvas);
   resizeCanvas();
 
-  // ── Asset loading ─────────────────────────────────────────
   const ASSET_PATH = "flappy-bird-assets/";
 
   const assetFiles = {
@@ -68,12 +63,12 @@
     }
   }
 
-  // Digit images array for easy access
+
   function digitImg(n) {
     return img["d" + n];
   }
 
-  // ── Sound generation (simple Web Audio bleeps) ────────────
+  // Sound  
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
   let audioCtx = null;
 
@@ -94,7 +89,7 @@
       gain.connect(audioCtx.destination);
       osc.start();
       osc.stop(audioCtx.currentTime + duration);
-    } catch (e) { /* audio not available */ }
+    } catch (e) { /* No audio available */ }
   }
 
   function sfxFlap() { playTone(600, 0.1, "square"); }
@@ -102,7 +97,7 @@
   function sfxHit() { playTone(200, 0.2, "sawtooth"); }
   function sfxDie() { playTone(150, 0.4, "sawtooth"); }
 
-  // ── Game constants (matching original physics) ────────────
+  //  Game constants (matching original physics) 
   const GRAVITY = 0.15;          // pixels/frame²  (original ~0.5 at 30fps-equivalent)
   const FLAP_VELOCITY = -5;     // upward velocity on flap
   const MAX_FALL_SPEED = 10;    // terminal velocity
@@ -121,7 +116,7 @@
   const BIRD_ROTATION_UP = -25 * (Math.PI / 180);
   const BIRD_ROTATION_DOWN = 90 * (Math.PI / 180);
 
-  // ── Game state ────────────────────────────────────────────
+  // Game state 
   const STATE_MENU = 0;
   const STATE_PLAYING = 1;
   const STATE_DYING = 2;
@@ -137,7 +132,7 @@
   let birdRotation = 0;
   let birdFlapFrame = 0;
   let birdFlapCounter = 0;
-  const FLAP_CYCLE = [0, 1, 2, 1]; // mid, up, down, up sprite order
+  const FLAP_CYCLE = [0, 1, 2, 1]; 
 
   // Pipes
   let pipes = [];
@@ -149,7 +144,6 @@
   // Frame counter for animation timing
   let frameCount = 0;
 
-  // ── Helpers ───────────────────────────────────────────────
   function resetGame() {
     birdY = GAME_HEIGHT / 2 - 20;
     birdVelocity = 0;
@@ -164,7 +158,6 @@
   }
 
   function randomPipeY() {
-    // Top pipe bottom-edge ranges so gap is always fully on screen
     const minTop = 50;
     const maxTop = BASE_Y - PIPE_GAP - 50;
     return Math.floor(Math.random() * (maxTop - minTop)) + minTop;
@@ -174,13 +167,13 @@
     const topEnd = randomPipeY();
     pipes.push({
       x: GAME_WIDTH,
-      topEnd: topEnd,          // bottom edge of the top pipe
-      bottomStart: topEnd + PIPE_GAP, // top edge of the bottom pipe
+      topEnd: topEnd,         
+      bottomStart: topEnd + PIPE_GAP, 
       scored: false,
     });
   }
 
-  // ── Bird sprite ───────────────────────────────────────────
+  // Bird sprite 
   function getBirdSprite() {
     const idx = FLAP_CYCLE[birdFlapFrame];
     if (idx === 0) return img.birdMid;
@@ -188,103 +181,82 @@
     return img.birdDown;
   }
 
-  // ── Collision detection ───────────────────────────────────
   function checkCollision() {
-    // Ground
     if (birdY + BIRD_HEIGHT >= BASE_Y) {
       birdY = BASE_Y - BIRD_HEIGHT;
       return true;
     }
-    // Ceiling
     if (birdY <= 0) {
       birdY = 0;
     }
 
-    // Pipes
     for (let i = 0; i < pipes.length; i++) {
       const p = pipes[i];
-      // Horizontal overlap
       if (
         BIRD_X + BIRD_WIDTH > p.x + 2 &&
         BIRD_X < p.x + PIPE_WIDTH - 2
       ) {
-        // Top pipe collision
         if (birdY < p.topEnd - 2) return true;
-        // Bottom pipe collision
         if (birdY + BIRD_HEIGHT > p.bottomStart + 2) return true;
       }
     }
     return false;
   }
 
-  // ── Update ────────────────────────────────────────────────
   function update() {
     frameCount++;
 
     if (state === STATE_MENU) {
-      // Bird bobs up and down on menu
       birdY = GAME_HEIGHT / 2 - 20 + Math.sin(frameCount * 0.08) * 8;
-      // Animate wings
       birdFlapCounter++;
       if (birdFlapCounter >= 8) {
         birdFlapCounter = 0;
         birdFlapFrame = (birdFlapFrame + 1) % 4;
       }
-      // Scroll ground
       baseX = (baseX - PIPE_SPEED) % 24;
       return;
     }
 
     if (state === STATE_PLAYING) {
-      // Bird physics
       birdVelocity += GRAVITY;
       if (birdVelocity > MAX_FALL_SPEED) birdVelocity = MAX_FALL_SPEED;
       birdY += birdVelocity;
 
-      // Bird rotation
       if (birdVelocity < 0) {
         birdRotation = BIRD_ROTATION_UP;
       } else {
-        // Gradually rotate down
         birdRotation += 0.04;
         if (birdRotation > BIRD_ROTATION_DOWN) birdRotation = BIRD_ROTATION_DOWN;
       }
 
-      // Animate wings
       birdFlapCounter++;
       if (birdFlapCounter >= 6) {
         birdFlapCounter = 0;
         birdFlapFrame = (birdFlapFrame + 1) % 4;
       }
 
-      // Pipe spawning
       pipeTimer++;
       if (pipeTimer >= PIPE_SPAWN_INTERVAL) {
         pipeTimer = 0;
         spawnPipe();
       }
 
-      // Move pipes & check scoring
       for (let i = pipes.length - 1; i >= 0; i--) {
         pipes[i].x -= PIPE_SPEED;
 
-        // Score when bird passes the pipe
         if (!pipes[i].scored && pipes[i].x + PIPE_WIDTH < BIRD_X) {
           pipes[i].scored = true;
           score++;
           sfxScore();
         }
 
-        // Remove off-screen pipes
         if (pipes[i].x + PIPE_WIDTH < -10) {
           pipes.splice(i, 1);
         }
       }
 
-      // Scroll ground
       baseX = (baseX - PIPE_SPEED) % 24;
 
-      // Collision
       if (checkCollision()) {
         state = STATE_DYING;
         sfxHit();
@@ -294,7 +266,6 @@
     }
 
     if (state === STATE_DYING) {
-      // Bird falls to the ground
       birdVelocity += GRAVITY;
       if (birdVelocity > MAX_FALL_SPEED) birdVelocity = MAX_FALL_SPEED;
       birdY += birdVelocity;
@@ -311,9 +282,8 @@
     }
   }
 
-  // ── Drawing ───────────────────────────────────────────────
+  //  Drawing
   function draw() {
-    // Background
     ctx.drawImage(img.bgDay, 0, 0, GAME_WIDTH, GAME_HEIGHT);
 
     // Pipes
@@ -321,24 +291,20 @@
       const p = pipes[i];
       const pipeImg = img.pipeGreen;
 
-      // Top pipe (flipped)
       ctx.save();
       ctx.translate(p.x + PIPE_WIDTH / 2, p.topEnd);
       ctx.scale(1, -1);
       ctx.drawImage(pipeImg, -PIPE_WIDTH / 2, 0, PIPE_WIDTH, pipeImg.height);
       ctx.restore();
 
-      // Bottom pipe
       ctx.drawImage(pipeImg, p.x, p.bottomStart, PIPE_WIDTH, pipeImg.height);
     }
 
     // Ground
-    // The base sprite tiles horizontally
     const baseWidth = img.base.width;
     for (let x = baseX; x < GAME_WIDTH; x += baseWidth) {
       ctx.drawImage(img.base, x, BASE_Y, baseWidth, BASE_HEIGHT);
     }
-    // Extra tile to fill gap on left
     if (baseX < 0) {
       ctx.drawImage(img.base, baseX - baseWidth + baseWidth, BASE_Y, baseWidth, BASE_HEIGHT);
     }
@@ -350,7 +316,7 @@
     ctx.drawImage(getBirdSprite(), -BIRD_WIDTH / 2, -BIRD_HEIGHT / 2, BIRD_WIDTH, BIRD_HEIGHT);
     ctx.restore();
 
-    // Score (during gameplay)
+    // Score 
     if (state === STATE_PLAYING || state === STATE_DYING || state === STATE_DEAD) {
       drawScore(score, GAME_WIDTH / 2, 30);
     }
@@ -385,7 +351,6 @@
   }
 
   function drawScorePanel() {
-    // Simple panel drawn with canvas primitives
     const panelW = 220;
     const panelH = 100;
     const panelX = (GAME_WIDTH - panelW) / 2;
@@ -399,26 +364,23 @@
     ctx.fill();
     ctx.stroke();
 
-    // Labels
     ctx.fillStyle = "#543847";
     ctx.font = "bold 16px Arial";
     ctx.textAlign = "left";
     ctx.fillText("Score", panelX + 20, panelY + 32);
     ctx.fillText("Best", panelX + 20, panelY + 72);
 
-    // Values
     ctx.textAlign = "right";
     ctx.fillText(score.toString(), panelX + panelW - 20, panelY + 32);
     ctx.fillText(bestScore.toString(), panelX + panelW - 20, panelY + 72);
 
-    // Restart hint
     ctx.textAlign = "center";
     ctx.fillStyle = "#fff";
     ctx.font = "14px Arial";
     ctx.fillText("Tap or press Space to restart", GAME_WIDTH / 2, panelY + panelH + 30);
   }
 
-  // ── Input handling ────────────────────────────────────────
+  // Input handling 
   function flap() {
     if (state === STATE_MENU) {
       resetGame();
@@ -457,7 +419,7 @@
     flap();
   });
 
-  // ── Game loop ─────────────────────────────────────────────
+  //  Game loop 
   const TARGET_FPS = 60;
   const FRAME_DURATION = 1000 / TARGET_FPS;
   let lastTime = 0;
@@ -479,7 +441,7 @@
     requestAnimationFrame(gameLoop);
   }
 
-  // ── Boot ──────────────────────────────────────────────────
+  //  Boot 
   loadAssets(function () {
     resetGame();
     requestAnimationFrame(gameLoop);

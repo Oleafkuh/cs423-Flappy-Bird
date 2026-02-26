@@ -1,3 +1,7 @@
+/*
+  Calculations of all movements
+*/
+
 import { drawFlapLine, setResetLabel, PersonInFrameLabel} from './draw.js';
 
 let reset = false;  //global variable tracking if flap has been reset
@@ -42,7 +46,7 @@ export function isPersonInFrame(kp) {
   const requiredKeypoints = ['right_wrist', 'left_wrist', 'right_shoulder', 'left_shoulder', 'right_elbow', 'left_elbow'];
 
    try{
-   if (requiredKeypoints.every(kp_name => kp[kp_name].score > 0.1)) {
+   if (requiredKeypoints.every(kp_name => kp[kp_name].score > 0.3)) {
    //console.log("person is fully in frame");
    PersonInFrameLabel(true);
    return true;

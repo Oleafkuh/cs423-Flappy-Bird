@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flappy Bird</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #000;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #appLayout {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) clamp(280px, 18Svw, 420px);
+    }
+
+    #gameArea {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      background-color: #000;
+    }
+
+    #gameCanvas {
+      display: block;
+      image-rendering: pixelated;
+    }
+
+    #hudBar {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      gap: 12px;
+      padding: 12px;
+      background-color: #58D858;
+      border-left: 2px solid #ffffff;
+      z-index: 10;
+    }
+
+    #cameraFeed {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      border: 2px solid #ffffff;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    #video,
+    #canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transform: scaleX(-1); /* mirror like a selfie */
+    }
+
+    #video {
+      object-fit: cover;
+    }
+
+    #canvas {
+      pointer-events: none;
+    }
+
+    #hud {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+      font-size: 32px;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+      color: #fff;
+    }
+
+    .hudRow {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .hudLabel {
+      color: rgb(255, 255, 255);
+    }
+  </style>
+</head>
+<body>
+  <div id="appLayout">
+    <div id="gameArea">
+      <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <aside id="hudBar">
+      <div id="cameraFeed">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas"></canvas>
+      </div>
+
+      <div id="hud">
+        <div class="hudRow">
+          <div class="hudLabel">Flaps:</div>
+          <div id="FlapCounter" style="color: rgb(34, 157, 30);">0</div>
+        </div>
+        <div class="hudRow">
+          <div class="hudLabel">RESET:</div>
+          <div id="ResetLabel" style="color: rgb(255, 0, 0);">False</div>
+        </div>
+        <div id="PersonInFrame" style="color: rgb(34, 255, 0); display: block;"></div>
+      </div>
+    </aside>
+  </div>
+
+  <script type="module" src="src/detector.js"></script>
+  </body>
+</html>

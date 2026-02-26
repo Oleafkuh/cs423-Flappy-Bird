@@ -2,7 +2,7 @@
 
 ## Start the project
 
-1. Open a terminal in this folder (`movenet`).
+1. Open a terminal in this folder (`MotionFlappyBird`).
 2. Install dependencies:
    ```bash
    npm install

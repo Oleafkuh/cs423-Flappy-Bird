@@ -1,8 +1,13 @@
+/*
+Main heart of tensorflow movenet set up
+*/
+
 // Import TensorFlow.js and the MoveNet pose detection model.
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import * as tf from '@tensorflow/tfjs';
 import {isPositionAFlap, isPersonInFrame} from './movement-calculations';
-import { drawSkeleton, drawKeypoints, incrementFlapCounter} from './draw';
+import { drawSkeleton, drawKeypoints, incrementFlapCounter, drawFlapLine} from './draw';
+import { flap } from '../game/flappy.js'
 
 
 // Use the GPU-accelerated backend for faster inference.
@@ -72,6 +77,7 @@ async function main() {
 
       if (isPositionAFlap(kp)) {
            incrementFlapCounter();
+           flap();
       }
   }
 

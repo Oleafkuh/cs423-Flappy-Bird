@@ -9,7 +9,12 @@
 //    |
 //    |
 //   1080
-import {ctx } from './detector.js';
+
+let ctx = null;
+
+export function setDrawContext(context) {
+  ctx = context;
+}
 
 
 const SKELETON = [
@@ -30,6 +35,7 @@ const SKELETON = [
 ];
 
 export function drawFlapLine(lineYPos, XofLeftShoulder, XofRightShoulder, color) {
+  if (!ctx) return;
   ctx.lineWidth = 4;
   ctx.strokeStyle = color;
    ctx.beginPath();
@@ -40,6 +46,7 @@ export function drawFlapLine(lineYPos, XofLeftShoulder, XofRightShoulder, color)
 
 // Draw visible keypoints (joints) on the canvas.
 export function drawKeypoints(keypoints) {
+  if (!ctx) return;
   keypoints.forEach(kp => {
     if (kp.score > 0.4) {
     ctx.fillStyle =
@@ -55,6 +62,7 @@ export function drawKeypoints(keypoints) {
 }
 
 export function drawSkeleton(kp) {
+  if (!ctx) return;
   ctx.lineWidth = 4;
   ctx.strokeStyle = 'white';
 

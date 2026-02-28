@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Flappy Bird</title>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
   <style>
     * {
       margin: 0;
@@ -105,31 +108,6 @@
   </style>
 </head>
 <body>
-  <div id="appLayout">
-    <div id="gameArea">
-      <canvas id="gameCanvas"></canvas>
-    </div>
-
-    <aside id="hudBar">
-      <div id="cameraFeed">
-        <video id="video" autoplay playsinline></video>
-        <canvas id="canvas"></canvas>
-      </div>
-
-      <div id="hud">
-        <div class="hudRow">
-          <div class="hudLabel">Flaps:</div>
-          <div id="FlapCounter" style="color: rgb(34, 157, 30);">0</div>
-        </div>
-        <div class="hudRow">
-          <div class="hudLabel">RESET:</div>
-          <div id="ResetLabel" style="color: rgb(255, 0, 0);">False</div>
-        </div>
-        <div id="PersonInFrame" style="color: rgb(34, 255, 0); display: block;"></div>
-      </div>
-    </aside>
-  </div>
-
-  <script type="module" src="src/detector.js"></script>
-  </body>
+  <script type="module" src="src/main.js"></script>
+</body>
 </html>

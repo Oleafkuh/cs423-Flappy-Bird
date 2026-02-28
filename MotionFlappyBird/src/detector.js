@@ -6,22 +6,14 @@ Main heart of tensorflow movenet set up
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import * as tf from '@tensorflow/tfjs';
 import {isPositionAFlap, isPersonInFrame} from './movement-calculations';
-import { drawSkeleton, drawKeypoints, incrementFlapCounter, drawFlapLine} from './draw';
+import { drawSkeleton, drawKeypoints, incrementFlapCounter, setDrawContext } from './draw';
 import { flap } from '../game/flappy.js'
 
-
-// Use the GPU-accelerated backend for faster inference.
-await tf.setBackend('webgl');
-
-// Grab the video and canvas elements used for rendering.
-const video = document.getElementById('video');
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-
-export {ctx};
+let isDetectorStarted = false;
 
 // Request webcam access and wait until the video metadata is ready.
 async function setupCamera() {
+  const video = document.getElementById('video');
   const stream = await navigator.mediaDevices.getUserMedia({
     video: { width: 1920, height: 1080 },
     audio: false
@@ -46,6 +38,13 @@ function keypointsToMap(keypoints) {
 
 // Main setup: initialize camera, canvas, model, and the render loop.
 async function main() {
+  await tf.setBackend('webgl');
+
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  setDrawContext(ctx);
   await setupCamera();
 
   // Match the canvas size to the live video feed.
@@ -88,5 +87,11 @@ async function main() {
   render();
 }
 
-// Kick off the app.
-main();
+export async function startDetector() {
+  if (isDetectorStarted) {
+    return;
+  }
+
+  isDetectorStarted = true;
+  await main();
+}

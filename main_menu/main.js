@@ -40,6 +40,9 @@ initHandTracking(video, (results) => {
   if (!results.multiHandLandmarks || gameStarted) return;
 
   const landmarks = results.multiHandLandmarks[0];
+
+  if (!Array.isArray(landmarks)) return;
+
   const indexTip = landmarks[8];
 
   const x = (1 - indexTip.x) * window.innerWidth;

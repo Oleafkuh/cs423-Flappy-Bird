@@ -78,7 +78,7 @@ console.log("MediaPipe loaded:", window.Hands);
     if (results.multiHandLandmarks?.length > 0) {
       const landmarks = results.multiHandLandmarks[0];
 
-      console.log(results.multiHandLandmarks);
+      //console.log(results.multiHandLandmarks);
 
       // Draw skeleton using built-in utilities
       window.drawConnectors(

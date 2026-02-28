@@ -1,5 +1,5 @@
-import { initHandTracking } from "./handTracking.js";
-import { isPinching } from "./pinchDetector.js";
+import { initHandTracking } from "./mediapipe/handTracking.js";
+import { isPinching } from "./mediapipe/pinchDetector.js";
 
 const video = document.createElement("video");
 
@@ -56,7 +56,7 @@ function renderMotionFlappyLayout() {
 
 async function startMotionFlappyBird() {
   renderMotionFlappyLayout();
-  const { startDetector } = await import("./detector.js");
+  const { startDetector } = await import("./movenet/detector.js");
   await startDetector();
 }
 

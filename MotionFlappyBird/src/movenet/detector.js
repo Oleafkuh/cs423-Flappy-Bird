@@ -5,9 +5,9 @@ Main heart of tensorflow movenet set up
 // Import TensorFlow.js and the MoveNet pose detection model.
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import * as tf from '@tensorflow/tfjs';
-import {isPositionAFlap, isPersonInFrame} from './movement-calculations';
-import { drawSkeleton, drawKeypoints, incrementFlapCounter, setDrawContext } from './draw';
-import { flap } from '../game/flappy.js'
+import {isPositionAFlap, isPersonInFrame} from './movement-calculations.js';
+import { drawSkeleton, drawKeypoints, incrementFlapCounter, setDrawContext } from './draw.js';
+import { flap } from '../../game/flappy.js'
 
 let isDetectorStarted = false;
 

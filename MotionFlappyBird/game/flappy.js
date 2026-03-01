@@ -103,7 +103,7 @@
   const BIRD_WIDTH = 34;
   const BIRD_HEIGHT = 24;
 
-  const PIPE_WIDTH = 60
+  const PIPE_WIDTH = 58
   let PIPE_GAP = 200;         // vertical gap between top and bottom pipes (RANDOMIZED DURING GAME)
   const PIPE_SPEED = 1.8;         // horizontal scroll speed
   const PIPE_SPAWN_INTERVAL = 175; // frames between pipe spawns (~1.5s at 60fps equiv)

@@ -83,7 +83,7 @@ function renderMainMenu() {
 
   screenRoot.innerHTML = `
     <div id="mainMenu" class="menuScreen">
-      <h1 class="menuTitle">Motion Flappy Bird</h1>
+      <img src="./flappy-bird-assets/logo.png" alt="Motion Flappy Bird" class="menuLogo" />
       <button id="startGameButton" class="menuButton primary">Start</button>
       <button id="settingsButton" class="menuButton secondary">Settings</button>
       <button id="leaderboardButton" class="menuButton secondary">Leaderboard</button>

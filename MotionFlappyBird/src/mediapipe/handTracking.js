@@ -4,21 +4,34 @@ export async function initHandTracking(videoElement, onResultsCallback) {
   });
 
   videoElement.srcObject = stream;
+  videoElement.id = "handTrackingVideo";
   videoElement.autoplay = true;
   videoElement.playsInline = true;
+  videoElement.style.position = "fixed";
+  videoElement.style.top = "16px";
+  videoElement.style.left = "16px";
+  videoElement.style.width = "320px";
+  videoElement.style.height = "240px";
+  videoElement.style.objectFit = "cover";
+  videoElement.style.border = "2px solid #ffffff";
+  videoElement.style.zIndex = "30";
   videoElement.style.transform = "scaleX(-1)";
   document.body.appendChild(videoElement);
 
   await videoElement.play();
 
   const canvas = document.createElement("canvas");
+  canvas.id = "handTrackingCanvas";
   canvas.width = 640;
   canvas.height = 480;
-  canvas.style.position = "absolute";
-  canvas.style.top = videoElement.offsetTop + "px";
-  canvas.style.left = videoElement.offsetLeft + "px";
+  canvas.style.position = "fixed";
+  canvas.style.top = "16px";
+  canvas.style.left = "16px";
+  canvas.style.width = "320px";
+  canvas.style.height = "240px";
   canvas.style.transform = "scaleX(-1)";
   canvas.style.pointerEvents = "none";
+  canvas.style.zIndex = "31";
   document.body.appendChild(canvas);
 
   const ctx = canvas.getContext("2d");
@@ -47,11 +60,18 @@ export async function initHandTracking(videoElement, onResultsCallback) {
         { color: "#00FF00", lineWidth: 3 }
       );
 
-      window.drawLandmarks(
-        ctx,
-        landmarks,
-        { color: "#FF0000", lineWidth: 2 }
-      );
+      landmarks.forEach((landmark, index) => {
+      let circleSize = 3;
+      let color =  "#ffffff"; 
+        if (index === 8) {// Index 8 is the index finger tip
+           color = "#FF0000";
+           circleSize = 7;
+        }
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(landmark.x * canvas.width, landmark.y * canvas.height, circleSize, 0, 2 * Math.PI);
+        ctx.fill();
+      });
     }
 
     onResultsCallback(results);

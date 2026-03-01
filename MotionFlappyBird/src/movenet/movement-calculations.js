@@ -46,7 +46,7 @@ export function isPersonInFrame(kp) {
   const requiredKeypoints = ['right_wrist', 'left_wrist', 'right_shoulder', 'left_shoulder', 'right_elbow', 'left_elbow'];
 
    try{
-   if (requiredKeypoints.every(kp_name => kp[kp_name].score > 0.3)) {
+   if (requiredKeypoints.every(kp_name => kp[kp_name].score > 0.4)) {
    //console.log("person is fully in frame");
    PersonInFrameLabel(true);
    return true;

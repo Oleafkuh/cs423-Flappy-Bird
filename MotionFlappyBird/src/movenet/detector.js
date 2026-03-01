@@ -6,7 +6,7 @@ Main heart of tensorflow movenet set up
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import * as tf from '@tensorflow/tfjs';
 import {isPositionAFlap, isPersonInFrame} from './movement-calculations.js';
-import { drawSkeleton, drawKeypoints, incrementFlapCounter, setDrawContext } from './draw.js';
+import { drawSkeleton, drawKeypoints, setDrawContext } from './draw.js';
 import { flap } from '../../game/flappy.js'
 
 let isDetectorStarted = false;
@@ -75,7 +75,6 @@ async function main() {
       drawSkeleton(kp);
 
       if (isPositionAFlap(kp)) {
-           incrementFlapCounter();
            flap();
       }
   }

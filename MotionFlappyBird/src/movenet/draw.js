@@ -27,12 +27,9 @@ const SKELETON = [
   ['left_shoulder', 'left_hip'],
   ['right_shoulder', 'right_hip'],
   ['left_hip', 'right_hip'],
-
-  ['left_hip', 'left_knee'],
-  ['left_knee', 'left_ankle'],
-  ['right_hip', 'right_knee'],
-  ['right_knee', 'right_ankle']
 ];
+
+const ValidDrawPoints = { 'left_shoulder': true, 'right_shoulder': true, 'left_elbow': true, 'right_elbow': true, 'left_wrist': true, 'right_wrist': true, 'left_hip': true, 'right_hip': true };
 
 export function drawFlapLine(lineYPos, XofLeftShoulder, XofRightShoulder, color) {
   if (!ctx) return;
@@ -48,15 +45,15 @@ export function drawFlapLine(lineYPos, XofLeftShoulder, XofRightShoulder, color)
 export function drawKeypoints(keypoints) {
   if (!ctx) return;
   keypoints.forEach(kp => {
-    if (kp.score > 0.4) {
-    ctx.fillStyle =
-      kp.score > 0.6 ? 'lime' :
-      'yellow'
+    if (kp.score > 0.4 && ValidDrawPoints[kp.name]) {
+      ctx.fillStyle =
+        kp.score > 0.6 ? 'lime' :
+        'yellow';
 
-    ctx.beginPath();
-    ctx.arc(kp.x, kp.y, 5, 0, 2 * Math.PI);
-    ctx.fill();
-    //console.log(kp.name,kp.x,kp.y);
+      ctx.beginPath();
+      ctx.arc(kp.x, kp.y, 5, 0, 2 * Math.PI);
+      ctx.fill();
+      //console.log(kp.name,kp.x,kp.y);
     }
   });
 }
@@ -81,12 +78,6 @@ export function drawSkeleton(kp) {
   });
 }
 
-// increment displayed flaps variable in top right corner
-export function incrementFlapCounter() {
-  const flapCounter = document.getElementById('FlapCounter');
-  flapCounter.textContent = (parseInt(flapCounter.textContent) || 0) + 1;
-}
-
 // display true or false for flap reset
 export function setResetLabel(reset) {
   const resetLabel = document.getElementById('ResetLabel');
@@ -96,6 +87,5 @@ export function setResetLabel(reset) {
 
 export function PersonInFrameLabel(bool) {
   const label = document.getElementById('PersonInFrame');
-  label.textContent = bool ? "IN FRAME FOR CALCULATION" : "GET IN FRAME";
-  label.style.color = bool ? 'green' : 'red';
+  label.textContent = bool ? "" : "GET IN FRAME";
 }

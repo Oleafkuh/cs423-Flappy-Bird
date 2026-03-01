@@ -4,10 +4,11 @@
   const canvas = document.getElementById("gameCanvas");
   const gameArea = document.getElementById("gameArea");
   const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
 
   //resolution
-  const GAME_WIDTH = 600;
-  const GAME_HEIGHT = 480;
+  const GAME_WIDTH = 1080;
+  const GAME_HEIGHT = 608;
   canvas.width = GAME_WIDTH;
   canvas.height = GAME_HEIGHT;
 
@@ -102,8 +103,8 @@
   const BIRD_WIDTH = 34;
   const BIRD_HEIGHT = 24;
 
-  const PIPE_WIDTH = 52
-  const PIPE_GAP = 180;         // vertical gap between top and bottom pipes
+  const PIPE_WIDTH = 60
+  let PIPE_GAP = 200;         // vertical gap between top and bottom pipes (RANDOMIZED DURING GAME)
   const PIPE_SPEED = 1.8;         // horizontal scroll speed
   const PIPE_SPAWN_INTERVAL = 175; // frames between pipe spawns (~1.5s at 60fps equiv)
 
@@ -235,6 +236,7 @@
       pipeTimer++;
       if (pipeTimer >= PIPE_SPAWN_INTERVAL) {
         pipeTimer = 0;
+        PIPE_GAP = Math.floor(Math.random() * 61) + 140;  //random number between 150 to 200
         spawnPipe();
       }
 
@@ -281,6 +283,7 @@
 
   //  Drawing
   function draw() {
+    ctx.imageSmoothingEnabled = false; //ensures no smoothing of pixel textures
     ctx.drawImage(img.bgDay, 0, 0, GAME_WIDTH, GAME_HEIGHT);
 
     // Pipes
@@ -320,11 +323,9 @@
 
     // Menu overlay
     if (state === STATE_MENU) {
-      const msgW = img.message.width;
-      const msgH = img.message.height;
-      img.message.width *= 2.5;
-      img.message.height *= 2.5;
-      ctx.drawImage(img.message, (GAME_WIDTH - msgW) / 2, (GAME_HEIGHT - msgH) / 2 -200);
+      const msgW = img.message.width * 2;
+      const msgH = img.message.height * 2;
+      ctx.drawImage(img.message, (GAME_WIDTH - msgW) / 2 + 200, (GAME_HEIGHT - msgH) / 2 , msgW, msgH);
     }
 
     // Game-over overlay

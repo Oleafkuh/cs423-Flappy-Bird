@@ -30,7 +30,7 @@ function drawScore(ctx, img, val, cx, y) {
   const totalW = digits.length * digitW;
   let startX = cx - totalW / 2;
   for (let i = 0; i < digits.length; i++) {
-    ctx.drawImage(digitImg(img, parseInt(digits[i], 10)), startX + i * digitW, y, digitW, digitH);
+    ctx.drawImage(digitImg(img, parseInt(digits[i], 10)), startX + i * digitW, y, digitW * 2, digitH * 2);
   }
 }
 
@@ -68,10 +68,10 @@ function drawPixelText(ctx, text, x, y, scale, color, align) {
 }
 
 function drawScorePanel(ctx, score, bestScore, gameWidth, gameHeight, img) {
-  const panelW = 220;
-  const panelH = 100;
+  const panelW = 440;
+  const panelH = 200;
   const panelX = (gameWidth - panelW) / 2;
-  const panelY = gameHeight / 2 - 30;
+  const panelY = gameHeight / 2 - panelH / 2 - 15;
 
   ctx.imageSmoothingEnabled = false;
   ctx.fillStyle = "rgba(222, 216, 149, 0.95)";
@@ -84,14 +84,13 @@ function drawScorePanel(ctx, score, bestScore, gameWidth, gameHeight, img) {
   ctx.fillRect(panelX, panelY, border, panelH);
   ctx.fillRect(panelX + panelW - border, panelY, border, panelH);
 
-  drawPixelText(ctx, "SCORE", panelX + 20, panelY + 18, 2, "#543847", "left");
-  drawPixelText(ctx, "BEST", panelX + 20, panelY + 58, 2, "#543847", "left");
+  const TextX = panelX + 20;
 
-  drawScore(ctx, img, score, panelX + panelW - 35, panelY + 20);
-  drawScore(ctx, img, bestScore, panelX + panelW - 35, panelY + 60);
-  drawPixelText(ctx, "BACK TO MENU", gameWidth / 2 - 90, panelY + panelH + 18, 2, "#ff9900", "left");
-  drawPixelText(ctx, "OR", gameWidth / 2 + 60, panelY + panelH + 18, 2, "#000000", "left");
-  drawPixelText(ctx, "PLAY AGAIN", gameWidth / 2 + 90, panelY + panelH + 18, 2, "#ff9900", "left");
+  drawPixelText(ctx, "SCORE", TextX + 20, panelY + 20, 7, "#543847", "left");
+  drawPixelText(ctx, "BEST", TextX + 20, panelY + 100, 7, "#543847", "left");
+
+  drawScore(ctx, img, score, TextX + 300, panelY + 15);
+  drawScore(ctx, img, bestScore, TextX + 300, panelY + 95);
 }
 
 export function drawGame(renderState) {
@@ -161,11 +160,12 @@ export function drawGame(renderState) {
   }
 
   if (state === STATE_DEAD) {
-    const goW = img.gameover.width;
-    ctx.drawImage(img.gameover, (gameWidth - goW) / 2, gameHeight / 2 - 80);
+    const goW = img.gameover.width * 2;
+    ctx.drawImage(img.gameover, (gameWidth - goW) / 2, gameHeight / 2 - 200, goW, img.gameover.height * 2);
 
-    const rW = img.reset.width;
-    ctx.drawImage(img.reset, (gameWidth - rW) / 2, gameHeight / 2 - 40);
+    const rW = img.reset.width * 2;
+    const rH = img.reset.height * 2;
+    ctx.drawImage(img.reset, (gameWidth - rW) / 2, (gameHeight - rH) / 2 + 150, rW, rH);
     drawScorePanel(ctx, score, bestScore, gameWidth, gameHeight, img);
   }
 }

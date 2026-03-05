@@ -1,3 +1,5 @@
+import { drawGame } from "./DisplayGame/renderGame.js";
+
 // Flappy Bird 
 
   //Canvas setup 
@@ -5,6 +7,9 @@
   const gameArea = document.getElementById("gameArea");
   const ctx = canvas.getContext("2d");
   ctx.imageSmoothingEnabled = false;
+  canvas.style.imageRendering = "pixelated";
+  canvas.style.textRendering = "pixelated";
+  canvas.style.msInterpolationMode = "nearest-neighbor";
 
   //resolution
   const GAME_WIDTH = 1080;
@@ -17,6 +22,8 @@
     const availableHeight = gameArea ? gameArea.clientHeight : window.innerHeight;
     canvas.style.width = availableWidth + "px";
     canvas.style.height = availableHeight + "px";
+    canvas.style.imageRendering = "pixelated";
+    canvas.style.textRendering = "pixelated";
   }
   window.addEventListener("resize", resizeCanvas);
   resizeCanvas();
@@ -34,6 +41,7 @@
     birdUp: "yellowbird-upflap.png",
     message: "message.png",
     gameover: "gameover.png",
+    reset: "reset.png",
     d0: "0.png",
     d1: "1.png",
     d2: "2.png",
@@ -60,12 +68,6 @@
       img[key].src = ASSET_PATH + assetFiles[key];
     }
   }
-
-
-  function digitImg(n) {
-    return img["d" + n];
-  }
-
   // Sound  
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
   let audioCtx = null;
@@ -281,103 +283,31 @@
     }
   }
 
-  //  Drawing
   function draw() {
-    ctx.imageSmoothingEnabled = false; //ensures no smoothing of pixel textures
-    ctx.drawImage(img.bgDay, 0, 0, GAME_WIDTH, GAME_HEIGHT);
-
-    // Pipes
-    for (let i = 0; i < pipes.length; i++) {
-      const p = pipes[i];
-      const pipeImg = img.pipeGreen;
-
-      ctx.save();
-      ctx.translate(p.x + PIPE_WIDTH / 2, p.topEnd);
-      ctx.scale(1, -1);
-      ctx.drawImage(pipeImg, -PIPE_WIDTH / 2, 0, PIPE_WIDTH, pipeImg.height);
-      ctx.restore();
-
-      ctx.drawImage(pipeImg, p.x, p.bottomStart, PIPE_WIDTH, pipeImg.height);
-    }
-
-    // Ground
-    const baseWidth = img.base.width;
-    for (let x = baseX; x < GAME_WIDTH; x += baseWidth) {
-      ctx.drawImage(img.base, x, BASE_Y, baseWidth, BASE_HEIGHT);
-    }
-    if (baseX < 0) {
-      ctx.drawImage(img.base, baseX - baseWidth + baseWidth, BASE_Y, baseWidth, BASE_HEIGHT);
-    }
-
-    // Bird
-    ctx.save();
-    ctx.translate(BIRD_X + BIRD_WIDTH / 2, birdY + BIRD_HEIGHT / 2);
-    ctx.rotate(birdRotation);
-    ctx.drawImage(getBirdSprite(), -BIRD_WIDTH / 2, -BIRD_HEIGHT / 2, BIRD_WIDTH, BIRD_HEIGHT);
-    ctx.restore();
-
-    // Score 
-    if (state === STATE_PLAYING || state === STATE_DYING || state === STATE_DEAD) {
-      drawScore(score, GAME_WIDTH / 2, 30);
-    }
-
-    // Menu overlay
-    if (state === STATE_MENU) {
-      const msgW = img.message.width * 2;
-      const msgH = img.message.height * 2;
-      ctx.drawImage(img.message, (GAME_WIDTH - msgW) / 2 + 200, (GAME_HEIGHT - msgH) / 2 , msgW, msgH);
-    }
-
-    // Game-over overlay
-    if (state === STATE_DEAD) {
-      const goW = img.gameover.width;
-      const goH = img.gameover.height;
-      ctx.drawImage(img.gameover, (GAME_WIDTH - goW) / 2, GAME_HEIGHT / 2 - 80);
-
-      // Score panel
-      drawScorePanel();
-    }
-  }
-
-  function drawScore(val, cx, y) {
-    const digits = val.toString().split("");
-    const digitW = 24;
-    const digitH = 36;
-    const totalW = digits.length * digitW;
-    let startX = cx - totalW / 2;
-    for (let i = 0; i < digits.length; i++) {
-      ctx.drawImage(digitImg(parseInt(digits[i])), startX + i * digitW, y, digitW, digitH);
-    }
-  }
-
-  function drawScorePanel() {
-    const panelW = 220;
-    const panelH = 100;
-    const panelX = (GAME_WIDTH - panelW) / 2;
-    const panelY = GAME_HEIGHT / 2 - 30;
-
-    ctx.fillStyle = "rgba(222, 216, 149, 0.95)";
-    ctx.strokeStyle = "#543847";
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.roundRect(panelX, panelY, panelW, panelH, 8);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = "#543847";
-    ctx.font = "bold 16px Arial";
-    ctx.textAlign = "left";
-    ctx.fillText("Score", panelX + 20, panelY + 32);
-    ctx.fillText("Best", panelX + 20, panelY + 72);
-
-    ctx.textAlign = "right";
-    ctx.fillText(score.toString(), panelX + panelW - 20, panelY + 32);
-    ctx.fillText(bestScore.toString(), panelX + panelW - 20, panelY + 72);
-
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#fff";
-    ctx.font = "14px Arial";
-    ctx.fillText("Tap or press Space to restart", GAME_WIDTH / 2, panelY + panelH + 30);
+    drawGame({
+      ctx,
+      img,
+      pipes,
+      baseX,
+      birdY,
+      birdRotation,
+      score,
+      bestScore,
+      state,
+      gameWidth: GAME_WIDTH,
+      gameHeight: GAME_HEIGHT,
+      baseY: BASE_Y,
+      baseHeight: BASE_HEIGHT,
+      birdX: BIRD_X,
+      birdWidth: BIRD_WIDTH,
+      birdHeight: BIRD_HEIGHT,
+      pipeWidth: PIPE_WIDTH,
+      getBirdSprite,
+      STATE_MENU,
+      STATE_PLAYING,
+      STATE_DYING,
+      STATE_DEAD,
+    });
   }
 
 // Input handling 

@@ -84,10 +84,20 @@ function renderMainMenu() {
   screenRoot.innerHTML = `
     <div id="mainMenu" class="menuScreen">
       <img src="./flappy-bird-assets/logo.png" alt="Motion Flappy Bird" class="menuLogo" />
-      <button id="startGameButton" class="menuButton primary">Start</button>
-      <button id="settingsButton" class="menuButton secondary">Settings</button>
-      <button id="leaderboardButton" class="menuButton secondary">Leaderboard</button>
-      <div class="menuInstruction">Pinch to select</div>
+      <div class="menuControlsRow">
+        <img src="./flappy-bird-assets/pinch.png" alt="Pinch gesture" class="menuPinchArt" />
+
+        <div class="menuButtonGrid">
+          <button id="startGameButton" class="menuButton primary">Start</button>
+
+          <div class="menuSecondaryRow">
+            <button id="settingsButton" class="menuButton secondary">Settings</button>
+            <button id="leaderboardButton" class="menuButton secondary">Leaderboard</button>
+          </div>
+        </div>
+
+        <img src="./flappy-bird-assets/pinch.png" alt="Pinch gesture" class="menuPinchArt" />
+      </div>
     </div>
   `;
 
@@ -126,12 +136,9 @@ function renderMotionFlappyLayout() {
     </div>
 
     <div id="hud">
-      <div class="hudRow">
-        <div class="hudLabel">RESET:</div>
-        <div id="ResetLabel" style="color: rgb(255, 0, 0);">False</div>
-      </div>
       <div id="PersonInFrame" style="color: rgb(255, 0, 0); display: block;"></div>
     </div>
+    <img id="squatGuide" src="./flappy-bird-assets/squat.png" alt="Squat gesture guide" style="position: fixed; left: 16px; bottom: 16px; width: 360px; height: auto; image-rendering: pixelated; z-index: 26;" />
   `;
 }
 

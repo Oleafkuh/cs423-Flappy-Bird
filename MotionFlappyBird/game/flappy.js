@@ -42,6 +42,8 @@ import { drawGame } from "./DisplayGame/renderGame.js";
     message: "message.png",
     gameover: "gameover.png",
     reset: "reset.png",
+    egg: "egg.png",
+    brokenEgg: "broken-egg.png",
     d0: "0.png",
     d1: "1.png",
     d2: "2.png",
@@ -105,6 +107,9 @@ import { drawGame } from "./DisplayGame/renderGame.js";
   const BIRD_WIDTH = 34;
   const BIRD_HEIGHT = 24;
 
+  const EGG_RADIUS = 15;
+  const BROKEN_EGG_DURATION_MS = 1000;
+
   const PIPE_WIDTH = 58
   let PIPE_GAP = 200;         // vertical gap between top and bottom pipes (RANDOMIZED DURING GAME)
   const PIPE_SPEED = 1.8;         // horizontal scroll speed
@@ -138,6 +143,10 @@ import { drawGame } from "./DisplayGame/renderGame.js";
   let pipes = [];
   let pipeTimer = 0;
 
+  // Single egg dropped by player input (null when no egg is active)
+  let egg = null;
+  let brokenEgg = null;
+
   // Ground scroll
   let baseX = 0;
 
@@ -152,9 +161,95 @@ import { drawGame } from "./DisplayGame/renderGame.js";
     birdFlapCounter = 0;
     pipes = [];
     pipeTimer = 0;
+    egg = null;
+    brokenEgg = null;
     score = 0;
     baseX = 0;
     frameCount = 0;
+  }
+
+export function spawnEgg() {
+    if (state !== STATE_PLAYING || egg) { //only one egg can be spawned at a time
+      return;
+    }
+
+    const eggVal = birdVelocity < 0 ? 0 : birdVelocity + 2; //if the bird is going up egg is dropped at normal speed, if bird is going down egg is dropped with added velocity
+    egg = {
+      x: BIRD_X,
+      y: birdY + BIRD_HEIGHT / 2,
+      velocity: eggVal,
+    };
+  }
+
+  function showBrokenEggAt(x, y) {
+    brokenEgg = {
+      x,
+      y,
+      expiresAt: performance.now() + BROKEN_EGG_DURATION_MS,
+    };
+  }
+
+  function updateBrokenEgg() {
+    if (!brokenEgg) {
+      return;
+    }
+
+    if (performance.now() >= brokenEgg.expiresAt) {
+      brokenEgg = null;
+    }
+  }
+
+  //updates egg properies and checks if it hit the ground or a pipe
+  function updateEgg() {
+    if (!egg) {
+      return;
+    }
+
+    //adjust position based on velocity
+    egg.velocity += GRAVITY;
+    if (egg.velocity > MAX_FALL_SPEED) egg.velocity = MAX_FALL_SPEED;
+    egg.y += egg.velocity;
+
+    if (egg.y + EGG_RADIUS >= BASE_Y) {
+      showBrokenEggAt(egg.x, BASE_Y - EGG_RADIUS);
+      egg = null;
+      return;
+    }
+
+    //pipe intersection logic
+    let shouldRemove = false;
+    for (let j = 0; j < pipes.length; j++) {
+      const p = pipes[j];
+      const overlapsPipeX = egg.x + EGG_RADIUS > p.x && egg.x - EGG_RADIUS < p.x + PIPE_WIDTH;
+      if (!overlapsPipeX) {
+        continue;
+      }
+
+      const landedOnBottomPipe =
+        egg.velocity >= 0 &&
+        egg.y - EGG_RADIUS < p.bottomStart &&
+        egg.y + EGG_RADIUS >= p.bottomStart;
+
+      if (landedOnBottomPipe) {
+        score += 3;
+        sfxScore();
+        shouldRemove = true;
+        break;
+      }
+
+      const hitTopPipe = egg.y - EGG_RADIUS <= p.topEnd;
+      const hitBottomPipeBody = egg.y + EGG_RADIUS >= p.bottomStart;
+
+      if (hitTopPipe || hitBottomPipeBody) {
+        showBrokenEggAt(egg.x, egg.y);
+        shouldRemove = true;
+        break;
+      }
+    }
+
+    if (shouldRemove) {
+      egg = null;
+    }
   }
 
   function randomPipeY() {
@@ -204,6 +299,7 @@ import { drawGame } from "./DisplayGame/renderGame.js";
   }
 
   function update() {
+    updateBrokenEgg();
     frameCount++;
 
     if (state === STATE_MENU) {
@@ -256,6 +352,12 @@ import { drawGame } from "./DisplayGame/renderGame.js";
         }
       }
 
+      if (brokenEgg) {
+        brokenEgg.x -= PIPE_SPEED;
+      }
+
+      updateEgg();
+
       baseX = (baseX - PIPE_SPEED) % 24;
 
       if (checkCollision()) {
@@ -302,6 +404,8 @@ import { drawGame } from "./DisplayGame/renderGame.js";
       birdWidth: BIRD_WIDTH,
       birdHeight: BIRD_HEIGHT,
       pipeWidth: PIPE_WIDTH,
+      egg,
+      brokenEgg,
       getBirdSprite,
       STATE_MENU,
       STATE_PLAYING,
@@ -355,11 +459,17 @@ export function restartFromDead() {
   sfxFlap();
 }
 
-// Keyboard
+//Used for keyboard testing
 document.addEventListener("keydown", function (e) {
   if (e.code === "Space" || e.code === "ArrowUp") {
     e.preventDefault();
     flap();
+    return;
+  }
+
+  if (e.code === "KeyX" && state === STATE_PLAYING) {
+    e.preventDefault();
+    spawnEgg();
   }
 });
 

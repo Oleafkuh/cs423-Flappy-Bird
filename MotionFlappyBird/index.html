@@ -38,7 +38,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 60px;
+      gap: 40px;
       z-index: 5;
       position: relative;
     }
@@ -78,6 +78,75 @@
       padding: 20px 36px;
       background: rgba(0, 0, 0, 0.45);
       color: #ffffff;
+    }
+
+    #mainMenu .menuControlsRow {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(20px, 5vw, 64px);
+      padding: 0 24px;
+    }
+
+    #mainMenu .menuPinchArt {
+      width: clamp(144px, 24vw, 360px);
+      height: auto;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    #mainMenu .menuButtonGrid {
+      width: min(33vw, 760px);
+      min-width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    #mainMenu #startGameButton {
+      width: 100%;
+      padding: 24px 36px;
+      line-height: 1;
+    }
+
+    #mainMenu .menuSecondaryRow {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      width: 100%;
+    }
+
+    #mainMenu .menuSecondaryRow .menuButton {
+      width: 100%;
+      padding: 18px 16px;
+      font-size: clamp(24px, 2vw, 32px);
+      line-height: 1;
+    }
+
+    @media (max-width: 900px) {
+      #mainMenu .menuControlsRow {
+        gap: 16px;
+      }
+
+      #mainMenu .menuButtonGrid {
+        width: min(88vw, 620px);
+        min-width: 0;
+      }
+
+      #mainMenu .menuPinchArt {
+        width: clamp(112px, 20vw, 192px);
+      }
+    }
+
+    @media (max-width: 640px) {
+      #mainMenu .menuControlsRow {
+        padding: 0 10px;
+      }
+
+      #mainMenu .menuPinchArt {
+        display: none;
+      }
     }
 
     .menuInstruction {

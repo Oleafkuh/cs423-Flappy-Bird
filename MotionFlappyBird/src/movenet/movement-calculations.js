@@ -5,6 +5,8 @@
 import { drawFlapLine, setResetLabel, PersonInFrameLabel} from './draw.js';
 
 let reset = false;  //global variable tracking if flap has been reset
+let eggDropReady = true;
+let eggDropBaselineY = null;
 
 
 //draws invisiable lines on each frame that determines if a flap was complished or not
@@ -95,5 +97,55 @@ export function getDeadStateWristSelection(kp) {
     return null;
   } catch {
     return null;
+  }
+}
+
+// Returns true once when shoulders drop significantly lower on screen.
+// Gesture re-arms after shoulders rise back toward baseline height.
+export function isPositionAnEggDrop(kp) {
+  try {
+    const hasConfidence =
+      kp.left_shoulder.score > 0.4 &&
+      kp.right_shoulder.score > 0.4;
+
+    if (!hasConfidence) {
+      eggDropReady = true;
+      eggDropBaselineY = null;
+      return false;
+    }
+
+    const shoulderY = (kp.left_shoulder.y + kp.right_shoulder.y) / 2;
+    const DROP_TRIGGER_OFFSET = 45;
+    const RESET_OFFSET = 14;
+
+    if (eggDropBaselineY === null) {
+      eggDropBaselineY = shoulderY;
+      eggDropReady = true;
+      return false;
+    }
+
+    // Rising back up re-arms the next drop trigger.
+    if (shoulderY <= eggDropBaselineY + RESET_OFFSET) {
+      eggDropBaselineY = shoulderY;
+      eggDropReady = true;
+      return false;
+    }
+
+    const shouldersDropped = shoulderY >= eggDropBaselineY + DROP_TRIGGER_OFFSET;
+
+    if (!eggDropReady) {
+      return false;
+    }
+
+    if (!shouldersDropped) {
+      return false;
+    }
+
+    eggDropReady = false;
+    return true;
+  } catch {
+    eggDropReady = true;
+    eggDropBaselineY = null;
+    return false;
   }
 }

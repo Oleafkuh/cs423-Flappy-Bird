@@ -112,6 +112,8 @@ export function drawGame(renderState) {
     birdWidth,
     birdHeight,
     pipeWidth,
+    egg,
+    brokenEgg,
     getBirdSprite,
     STATE_MENU,
     STATE_PLAYING,
@@ -148,6 +150,16 @@ export function drawGame(renderState) {
   ctx.rotate(birdRotation);
   ctx.drawImage(getBirdSprite(), -birdWidth / 2, -birdHeight / 2, birdWidth, birdHeight);
   ctx.restore();
+
+  if (egg) {
+    ctx.drawImage(img.egg, egg.x, egg.y, img.egg.width, img.egg.height);
+  }
+
+  if (brokenEgg) {
+    const brokenEggW = img.brokenEgg.width;
+    const brokenEggH = img.brokenEgg.height;
+    ctx.drawImage(img.brokenEgg, brokenEgg.x - brokenEggW / 2, brokenEgg.y - brokenEggH / 2, brokenEggW, brokenEggH);
+  }
 
   if (state === STATE_PLAYING || state === STATE_DYING || state === STATE_DEAD) {
     drawScore(ctx, img, score, gameWidth / 2, 30);

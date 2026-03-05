@@ -5,11 +5,12 @@ Main heart of tensorflow movenet set up
 // Import TensorFlow.js and the MoveNet pose detection model.
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import * as tf from '@tensorflow/tfjs';
-import {isPositionAFlap, isPersonInFrame} from './movement-calculations.js';
+import {isPositionAFlap, isPersonInFrame, getDeadStateWristSelection} from './movement-calculations.js';
 import { drawSkeleton, drawKeypoints, setDrawContext } from './draw.js';
-import { flap } from '../../game/flappy.js'
+import { flap, isDeadState, restartFromDead } from '../../game/flappy.js'
 
 let isDetectorStarted = false;
+let deadSelectionLocked = false;
 
 // Request webcam access and wait until the video metadata is ready.
 async function setupCamera() {
@@ -74,8 +75,25 @@ async function main() {
       drawKeypoints(pose?.keypoints || []);
       drawSkeleton(kp);
 
-      if (isPositionAFlap(kp)) {
-           flap();
+      if (isDeadState()) {
+        const selection = getDeadStateWristSelection(kp);
+
+        if (!selection) {
+          deadSelectionLocked = false;
+        } else if (!deadSelectionLocked) {
+          deadSelectionLocked = true;
+
+          if (selection === 'left') {
+            window.location.reload();
+          } else if (selection === 'right') {
+            restartFromDead();
+          }
+        }
+      } else {
+        deadSelectionLocked = false;
+        if (isPositionAFlap(kp)) {
+          flap();
+        }
       }
   }
 

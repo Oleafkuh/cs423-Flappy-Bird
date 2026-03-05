@@ -331,6 +331,30 @@ export function flap() {
     }
   }
 
+export function isDeadState() {
+  return state === STATE_DEAD;
+}
+
+export function goToMenuFromDead() {
+  if (state !== STATE_DEAD) {
+    return;
+  }
+
+  state = STATE_MENU;
+  resetGame();
+}
+
+export function restartFromDead() {
+  if (state !== STATE_DEAD) {
+    return;
+  }
+
+  resetGame();
+  state = STATE_MENU;
+  birdVelocity = FLAP_VELOCITY;
+  sfxFlap();
+}
+
 // Keyboard
 document.addEventListener("keydown", function (e) {
   if (e.code === "Space" || e.code === "ArrowUp") {

@@ -63,3 +63,42 @@ export function isPersonInFrame(kp) {
   }
   
 }
+
+// In dead-state selection mode:
+// - left wrist above left shoulder => return "left"
+// - right wrist above right shoulder => return "right"
+// - both above => choose the side raised higher above its shoulder
+export function getDeadStateWristSelection(kp) {
+  try {
+    const hasConfidence =
+      kp.left_wrist.score > 0.4 &&
+      kp.right_wrist.score > 0.4 &&
+      kp.left_shoulder.score > 0.4 &&
+      kp.right_shoulder.score > 0.4;
+
+    if (!hasConfidence) {
+      return null;
+    }
+
+    const leftRaised = kp.left_wrist.y < kp.left_shoulder.y;
+    const rightRaised = kp.right_wrist.y < kp.right_shoulder.y;
+
+    if (leftRaised && rightRaised) {
+      const leftDelta = kp.left_shoulder.y - kp.left_wrist.y;
+      const rightDelta = kp.right_shoulder.y - kp.right_wrist.y;
+      return leftDelta >= rightDelta ? "left" : "right";
+    }
+
+    if (leftRaised) {
+      return "left";
+    }
+
+    if (rightRaised) {
+      return "right";
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}

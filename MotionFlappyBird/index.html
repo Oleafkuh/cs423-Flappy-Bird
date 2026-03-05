@@ -38,7 +38,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 24px;
+      gap: 60px;
       z-index: 5;
       position: relative;
     }
@@ -67,15 +67,15 @@
     }
 
     .menuButton.primary {
-      font-size: 30px;
-      padding: 18px 34px;
+      font-size: 40px;
+      padding: 24px 44px;
       background: #58D858;
       color: #ffffff;
     }
 
     .menuButton.secondary {
-      font-size: 18px;
-      padding: 10px 20px;
+      font-size: 32px;
+      padding: 20px 36px;
       background: rgba(0, 0, 0, 0.45);
       color: #ffffff;
     }
@@ -164,12 +164,30 @@
       align-items: center;
     }
 
-    .hudLabel {
-      color: rgb(255, 255, 255);
+    #cameraInstructions {
+      position: fixed;
+      top: 264px;
+      left: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+      z-index: 25;
+      background: rgba(0, 0, 0, 0.35);
+      border: 2px solid #ffffff;
+      border-radius: 8px;
+      padding: 8px;
     }
   </style>
 </head>
 <body>
+  <div id="cameraInstructions">
+    <div>Get into frame</div>
+    <div>Pinch to select</div>
+  </div>
   <script type="module" src="src/main.js"></script>
 </body>
 </html>

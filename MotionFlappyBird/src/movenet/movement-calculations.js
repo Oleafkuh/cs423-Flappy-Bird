@@ -42,27 +42,27 @@ catch (e) {
 }
 }
 
+let inFrameCounter = 0;
+let isCurrentlyInFrame = false;
+
 //checks to see if every point used for calculation is in frame
 export function isPersonInFrame(kp) {
   const requiredKeypoints = ['right_wrist', 'left_wrist', 'right_shoulder', 'left_shoulder', 'right_elbow', 'left_elbow'];
 
-   try{
-   if (requiredKeypoints.every(kp_name => kp[kp_name].score > 0.4)) {
-   //console.log("person is fully in frame");
-   PersonInFrameLabel(true);
-   return true;
-  }
-  else {
+  const personInFrameRaw = requiredKeypoints.every(name => kp[name] && kp[name].score > 0.4);
+
+  inFrameCounter = personInFrameRaw ? inFrameCounter + 1 : inFrameCounter - 1;
+  inFrameCounter = Math.max(-5, Math.min(5, inFrameCounter)); // Clamp between -5 and 5
+
+  if (inFrameCounter > 3 && !isCurrentlyInFrame) {
+    isCurrentlyInFrame = true;
+    PersonInFrameLabel(true);
+  } else if (inFrameCounter < -3 && isCurrentlyInFrame) {
+    isCurrentlyInFrame = false;
     PersonInFrameLabel(false);
-       return false;
   }
-}
-  catch { //if key point doesn't exist it will throw an error and we simply return false
-    PersonInFrameLabel(false);
-       return false;
-   
-  }
-  
+
+  return isCurrentlyInFrame;
 }
 
 // In dead-state selection mode:

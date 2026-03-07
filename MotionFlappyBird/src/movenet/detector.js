@@ -11,14 +11,31 @@ import { flap, isDeadState, restartFromDead, spawnEgg } from '../../game/flappy.
 
 let isDetectorStarted = false;
 let deadSelectionLocked = false;
+const CAMERA_WIDTH = 1280;
+const CAMERA_HEIGHT = 720;
 
 // Request webcam access and wait until the video metadata is ready.
 async function setupCamera() {
   const video = document.getElementById('video');
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: { width: 1920, height: 1080 },
-    audio: false
-  });
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        width: { exact: CAMERA_WIDTH },
+        height: { exact: CAMERA_HEIGHT }
+      },
+      audio: false
+    });
+  } catch {
+    // Fallback keeps gameplay working on devices that cannot hard-lock exact constraints.
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        width: { ideal: CAMERA_WIDTH },
+        height: { ideal: CAMERA_HEIGHT }
+      },
+      audio: false
+    });
+  }
   video.srcObject = stream;
 
   return new Promise(resolve => {
@@ -91,6 +108,7 @@ async function main() {
         }
       } else {
         deadSelectionLocked = false;
+        console.log("howdy");
         if (isPositionAFlap(kp)) {
           flap();
         }
@@ -100,7 +118,7 @@ async function main() {
       }
   }
 
-  // requestAnimationFrame(render); //draws the new frame on the next broswer repaint and calls render continuing the loop
+  requestAnimationFrame(render); //draws the new frame on the next broswer repaint and calls render continuing the loop
 }
 
   console.log("Looping render");

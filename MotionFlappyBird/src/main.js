@@ -1,9 +1,7 @@
-import { initHandTracking } from "./mediapipe/handTracking.js";
+import { initHandTracking, stopHandTracking } from "./mediapipe/handTracking.js";
 import { isPinching } from "./mediapipe/pinchDetector.js";
 import { renderSettingsView } from "./Menu_Components/settings.js";
 import { renderLeaderboardView } from "./Menu_Components/leaderboard.js";
-
-const video = document.createElement("video");
 
 const cursor = document.createElement("div");
 cursor.style.position = "fixed";
@@ -21,6 +19,19 @@ document.body.appendChild(screenRoot);
 
 let gameStarted = false;
 let wasPinchingLastFrame = false;
+let isHandTrackingRunning = false;
+
+const sharedVideo = document.getElementById("video");
+const sharedCanvas = document.getElementById("canvas");
+
+async function ensureHandTrackingRunning() {
+  if (isHandTrackingRunning || !sharedVideo || !sharedCanvas) {
+    return;
+  }
+
+  await initHandTracking(sharedVideo, sharedCanvas, handleHandTrackingResults);
+  isHandTrackingRunning = true;
+}
 
 /**
  * Finds the currently hovered button in the active menu/component screen.
@@ -55,17 +66,7 @@ function getHoveredMenuButton(x, y) {
  * @param {boolean} isVisible - Whether to display the menu camera overlays.
  */
 function setMenuTrackingOverlayVisibility(isVisible) {
-  const handTrackingVideo = document.getElementById("handTrackingVideo");
-  const handTrackingCanvas = document.getElementById("handTrackingCanvas");
   const displayValue = isVisible ? "block" : "none";
-
-  if (handTrackingVideo) {
-    handTrackingVideo.style.display = displayValue;
-  }
-
-  if (handTrackingCanvas) {
-    handTrackingCanvas.style.display = displayValue;
-  }
 
   cursor.style.display = displayValue;
 }
@@ -80,6 +81,9 @@ function renderMainMenu() {
   gameStarted = false;
   wasPinchingLastFrame = false;
   setMenuTrackingOverlayVisibility(true);
+  ensureHandTrackingRunning().catch((error) => {
+    console.error("Failed to start hand tracking:", error);
+  });
 
   screenRoot.innerHTML = `
     <div id="mainMenu" class="menuScreen">
@@ -130,15 +134,10 @@ function renderMotionFlappyLayout() {
       <canvas id="gameCanvas"></canvas>
     </div>
 
-    <div id="cameraFeed">
-      <video id="video" autoplay playsinline></video>
-      <canvas id="canvas"></canvas>
-    </div>
-
     <div id="hud">
       <div id="PersonInFrame" style="color: rgb(255, 0, 0); display: block;"></div>
     </div>
-    <img id="squatGuide" src="./flappy-bird-assets/squat.png" alt="Squat gesture guide" style="position: fixed; left: 16px; bottom: 16px; width: 360px; height: auto; image-rendering: pixelated; z-index: 26;" />
+    <img id="squatGuide" src="./flappy-bird-assets/squat.png" alt="Squat gesture guide" />
   `;
 }
 
@@ -151,6 +150,12 @@ function renderMotionFlappyLayout() {
 async function startMotionFlappyBird() {
   gameStarted = true;
   setMenuTrackingOverlayVisibility(false);
+
+  if (isHandTrackingRunning) {
+    await stopHandTracking();
+    isHandTrackingRunning = false;
+  }
+
   renderMotionFlappyLayout();
   const { startDetector } = await import("./movenet/detector.js");
   await startDetector();
@@ -203,5 +208,4 @@ async function handleHandTrackingResults(results) {
   wasPinchingLastFrame = isPinchActive;
 }
 
-initHandTracking(video, handleHandTrackingResults);
 renderMainMenu();

@@ -19,20 +19,19 @@ export function isPositionAFlap(kp) {
   let flapResetLineY = (shoulderYAver + hipYAver) / 2.5;
   let rightShoulderX = kp.right_shoulder.x; let leftShoulderX = kp.left_shoulder.x;
 
-  drawFlapLine(flapHitLineY, leftShoulderX, rightShoulderX, 'green'); // User must get purple line below green to register a flap, if they have reset their stance
-  drawFlapLine(flapResetLineY, leftShoulderX, rightShoulderX, 'red'); // rest line below shoulders.  User must reset before each counted flap
+ // drawFlapLine(flapHitLineY, leftShoulderX, rightShoulderX, 'green'); // User must get purple line below green to register a flap, if they have reset their stance
+  //drawFlapLine(flapResetLineY, leftShoulderX, rightShoulderX, 'red'); // rest line below shoulders.  User must reset before each counted flap
 
  
 //const averages out the Y distance of the wrists and the elbows
 const flapPos = (((kp.right_wrist.y + kp.left_wrist.y) /2 ) + ((kp.right_elbow.y + kp.left_elbow.y) /2)) / 2
 
- drawFlapLine(flapPos, leftShoulderX, rightShoulderX, 'purple'); //line the represents the position of where the flap is
+ //drawFlapLine(flapPos, leftShoulderX, rightShoulderX, 'purple'); //line the represents the position of where the flap is
 
-if (flapPos < flapResetLineY) { reset = true;  setResetLabel(reset); }
+if (flapPos < flapResetLineY) { reset = true; }
 
   if (reset && flapPos > flapHitLineY) {
     reset = false;
-    setResetLabel(reset);
     return true;
   }
   return false;

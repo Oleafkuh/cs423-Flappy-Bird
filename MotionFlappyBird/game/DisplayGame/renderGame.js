@@ -25,12 +25,12 @@ function digitImg(img, n) {
 
 function drawScore(ctx, img, val, cx, y) {
   const digits = val.toString().split("");
-  const digitW = 24;
-  const digitH = 36;
+  const digitW = 48;
+  const digitH = 72;
   const totalW = digits.length * digitW;
   let startX = cx - totalW / 2;
   for (let i = 0; i < digits.length; i++) {
-    ctx.drawImage(digitImg(img, parseInt(digits[i], 10)), startX + i * digitW, y, digitW * 2, digitH * 2);
+    ctx.drawImage(digitImg(img, parseInt(digits[i], 10)), startX + i * digitW, y, digitW, digitH);
   }
 }
 

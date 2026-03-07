@@ -25,6 +25,17 @@
       position: relative;
     }
 
+    :root {
+      --camera-feed-margin: 0px;
+      --camera-feed-width: min(
+        640px,
+        30vw,
+        calc(100vw - (var(--camera-feed-margin) * 2)),
+        calc((100vh - (var(--camera-feed-margin) * 2)) * 16 / 9)
+      );
+      --camera-feed-height: calc(var(--camera-feed-width) * 9 / 16);
+    }
+
     #screenRoot {
       position: relative;
       width: 100%;
@@ -180,10 +191,10 @@
 
     #cameraFeed {
       position: fixed;
-      top: 16px;
-      left: 16px;
-      width: min(320px, 30vw);
-      aspect-ratio: 4 / 3;
+      top: var(--camera-feed-margin);
+      left: var(--camera-feed-margin);
+      width: var(--camera-feed-width);
+      aspect-ratio: 16 / 9;
       border: 2px solid #ffffff;
       box-sizing: border-box;
       overflow: hidden;
@@ -210,8 +221,8 @@
 
     #hud {
       position: fixed;
-      top: 268px;
-      left: 16px;
+      top: calc(var(--camera-feed-margin) + var(--camera-feed-height) + 12px);
+      left: var(--camera-feed-margin);
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -235,8 +246,8 @@
 
     #cameraInstructions {
       position: fixed;
-      top: 264px;
-      left: 16px;
+      top: calc(var(--camera-feed-margin) + var(--camera-feed-height) + 12px);
+      left: var(--camera-feed-margin);
       display: flex;
       flex-direction: column;
       gap: 4px;
@@ -250,12 +261,25 @@
       border-radius: 8px;
       padding: 8px;
     }
+
+    #squatGuide {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: clamp(220px, 28vw, 560px);
+      max-height: 42vh;
+      height: auto;
+      object-fit: contain;
+      image-rendering: pixelated;
+      z-index: 26;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
-  <div id="cameraInstructions">
-    <div>Get into frame</div>
-    <div>Pinch to select</div>
+  <div id="cameraFeed">
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
   </div>
   <script type="module" src="src/main.js"></script>
 </body>

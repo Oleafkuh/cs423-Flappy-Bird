@@ -111,9 +111,9 @@ import { drawGame } from "./DisplayGame/renderGame.js";
   const BROKEN_EGG_DURATION_MS = 1000;
 
   const PIPE_WIDTH = 58
-  let PIPE_GAP = 200;         // vertical gap between top and bottom pipes (RANDOMIZED DURING GAME)
+  let PIPE_GAP = 250;         // vertical gap between top and bottom pipes (RANDOMIZED DURING GAME) First pipe is easy
   const PIPE_SPEED = 1.8;         // horizontal scroll speed
-  const PIPE_SPAWN_INTERVAL = 175; // frames between pipe spawns (~1.5s at 60fps equiv)
+  const PIPE_SPAWN_INTERVAL = 200; // frames between pipe spawns
 
   const BASE_HEIGHT = 112;      // ground sprite height
   const BASE_Y = GAME_HEIGHT - BASE_HEIGHT;
@@ -141,7 +141,7 @@ import { drawGame } from "./DisplayGame/renderGame.js";
 
   // Pipes
   let pipes = [];
-  let pipeTimer = 0;
+  let pipeTimer = 100; //starts the timer with a bit of a head start so the first pipe spawns faster
 
   // Single egg dropped by player input (null when no egg is active)
   let egg = null;
@@ -160,7 +160,7 @@ import { drawGame } from "./DisplayGame/renderGame.js";
     birdFlapFrame = 0;
     birdFlapCounter = 0;
     pipes = [];
-    pipeTimer = 0;
+    pipeTimer = 150;
     egg = null;
     brokenEgg = null;
     score = 0;
@@ -334,7 +334,7 @@ export function spawnEgg() {
       pipeTimer++;
       if (pipeTimer >= PIPE_SPAWN_INTERVAL) {
         pipeTimer = 0;
-        PIPE_GAP = Math.floor(Math.random() * 61) + 140;  //random number between 150 to 200
+        PIPE_GAP = Math.floor(Math.random() * 91) + 160;  //random number between 160 to 250
         spawnPipe();
       }
 

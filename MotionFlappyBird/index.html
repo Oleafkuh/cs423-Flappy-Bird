@@ -238,14 +238,10 @@
       padding: 10px;
     }
 
-    .userStatus {
-      color: #ffffff;
-      font-size: 20px;
-      margin-bottom: 10px;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-      background: rgba(0, 0, 0, 0.3);
-      padding: 8px 16px;
-      border-radius: 8px;
+    .hudRow {
+      display: flex;
+      gap: 8px;
+      align-items: center;
     }
 
     #cameraInstructions {
@@ -278,115 +274,7 @@
       z-index: 26;
       pointer-events: none;
     }
-
-    .loginForm {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      width: min(400px, 90vw);
-      background: rgba(0, 0, 0, 0.5);
-      padding: 24px;
-      border-radius: 12px;
-      border: 2px solid #ffffff;
-    }
-
-    .loginInput {
-      padding: 12px;
-      font-size: 18px;
-      border: 2px solid #58D858;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.9);
-      color: #000;
-    }
-
-    .loginInput:focus {
-      outline: none;
-      border-color: #ffffff;
-    }
-
-    .loginButtons {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .loginMessage {
-      text-align: center;
-      font-size: 16px;
-      margin-top: 10px;
-      min-height: 24px;
-      display: none;
-    }
-
-    .leaderboardTable {
-      width: min(600px, 90vw);
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 12px;
-      border: 2px solid #ffffff;
-      overflow: hidden;
-      margin-bottom: 20px;
-    }
-
-    .leaderboardHeader {
-      display: flex;
-      background: rgba(88, 216, 88, 0.3);
-      color: #ffffff;
-      font-weight: bold;
-      font-size: 18px;
-      padding: 12px;
-      border-bottom: 2px solid #ffffff;
-    }
-
-    .leaderboardRow {
-      display: flex;
-      color: #ffffff;
-      font-size: 18px;
-      padding: 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .leaderboardRow.currentUser {
-      background: rgba(88, 216, 88, 0.2);
-      font-weight: bold;
-    }
-
-    .leaderboardRow:last-child {
-      border-bottom: none;
-    }
-
-    .leaderboardRank {
-      width: 80px;
-      text-align: center;
-    }
-
-    .leaderboardUser {
-      flex: 1;
-      text-align: left;
-      padding-left: 20px;
-    }
-
-    .leaderboardScore {
-      width: 100px;
-      text-align: center;
-    }
-
-    .leaderboardEmpty {
-      color: #ffffff;
-      font-size: 20px;
-      text-align: center;
-      padding: 40px;
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 12px;
-      border: 2px solid #ffffff;
-      margin-bottom: 20px;
-    }
-
-    .leaderboardActions {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-    }
+  </style>
 </head>
 <body>
   <div id="cameraFeed">

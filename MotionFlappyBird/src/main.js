@@ -2,6 +2,7 @@ import { initHandTracking, stopHandTracking } from "./mediapipe/handTracking.js"
 import { isPinching } from "./mediapipe/pinchDetector.js";
 import { renderSettingsView } from "./Menu_Components/settings.js";
 import { renderLeaderboardView } from "./Menu_Components/leaderboard.js";
+import { renderLoginView, getCurrentUser, logout, saveScore } from "./Menu_Components/login.js";
 
 const cursor = document.createElement("div");
 cursor.style.position = "fixed";
@@ -20,9 +21,10 @@ document.body.appendChild(screenRoot);
 let gameStarted = false;
 let wasPinchingLastFrame = false;
 let isHandTrackingRunning = false;
+let currentUsername = getCurrentUser();
 
 const sharedVideo = document.getElementById("video");
-const sharedCanvas = document.getElementById("canvas");
+const sharedCanvas = document("canvas");
 
 async function ensureHandTrackingRunning() {
   if (isHandTrackingRunning || !sharedVideo || !sharedCanvas) {
@@ -84,10 +86,13 @@ function renderMainMenu() {
   ensureHandTrackingRunning().catch((error) => {
     console.error("Failed to start hand tracking:", error);
   });
+  currentUsername = getCurrentUser();
+  const userGreeting = currentUsername ? `Welcome, ${currentUsername}!` : "Not logged in";
 
   screenRoot.innerHTML = `
     <div id="mainMenu" class="menuScreen">
       <img src="./flappy-bird-assets/logo.png" alt="Motion Flappy Bird" class="menuLogo" />
+      <div class="userStatus">${userGreeting}</div>
       <div class="menuControlsRow">
         <img src="./flappy-bird-assets/pinch.png" alt="Pinch gesture" class="menuPinchArt" />
 
@@ -98,18 +103,28 @@ function renderMainMenu() {
             <button id="settingsButton" class="menuButton secondary">Settings</button>
             <button id="leaderboardButton" class="menuButton secondary">Leaderboard</button>
           </div>
+          <button id="loginButton" class="menuButton secondary">${currentUsername ? 'Logout' : 'Login'}</button>
         </div>
 
         <img src="./flappy-bird-assets/pinch.png" alt="Pinch gesture" class="menuPinchArt" />
       </div>
+      <div class="menuInstruction">Pinch to select</div>
     </div>
   `;
 
   const startGameButton = document.getElementById("startGameButton");
   const settingsButton = document.getElementById("settingsButton");
   const leaderboardButton = document.getElementById("leaderboardButton");
+  const loginButton = document.getElementById("loginButton");
 
   startGameButton?.addEventListener("click", () => {
+    if (!currentUsername) {
+      renderLoginView(screenRoot, (username) => {
+        currentUsername = username;
+        renderMainMenu();
+      }, renderMainMenu);
+      return;
+    }
     startMotionFlappyBird();
   });
 
@@ -119,6 +134,19 @@ function renderMainMenu() {
 
   leaderboardButton?.addEventListener("click", () => {
     renderLeaderboardView(screenRoot, renderMainMenu);
+  });
+
+  loginButton?.addEventListener("click", () => {
+    if (currentUsername) {
+      logout();
+      currentUsername = null;
+      renderMainMenu();
+    } else {
+      renderLoginView(screenRoot, (username) => {
+        currentUsername = username;
+        renderMainMenu();
+      }, renderMainMenu);
+    }
   });
 }
 
@@ -159,6 +187,21 @@ async function startMotionFlappyBird() {
   renderMotionFlappyLayout();
   const { startDetector } = await import("./movenet/detector.js");
   await startDetector();
+  
+  // Import and start the game
+  const { flap } = await import("../game/flappy.js");
+  
+  // Override the game's score saving to use our system
+  const originalLocalStorageSet = localStorage.setItem;
+  localStorage.setItem = function(key, value) {
+    if (key === "flappyBest") {
+      const score = parseInt(value, 10);
+      if (currentUsername && score > 0) {
+        saveScore(score);
+      }
+    }
+    return originalLocalStorageSet.call(this, key, value);
+  };
 }
 
 /**
@@ -195,6 +238,14 @@ async function handleHandTrackingResults(results) {
 
   if (hoveredButton && isFreshPinch) {
     if (hoveredButton.id === "startGameButton") {
+      if (!currentUsername) {
+        renderLoginView(screenRoot, (username) => {
+          currentUsername = username;
+          renderMainMenu();
+        }, renderMainMenu);
+        wasPinchingLastFrame = false;
+        return;
+      }
       hoveredButton.innerText = "Loading...";
       console.log("Start selected via pinch!");
       await startMotionFlappyBird();

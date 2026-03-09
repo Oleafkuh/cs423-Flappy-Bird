@@ -40,14 +40,16 @@ export function renderLeaderboardView(rootElement, onBack) {
   }
   
   rootElement.innerHTML = `
-    <div class="menuScreen">
-      <h1 class="menuTitle">Leaderboard</h1>
-      
-      ${leaderboardHTML}
-      
-      <div class="leaderboardActions">
-        <button id="refreshLeaderboard" class="menuButton secondary">Refresh</button>
-        <button id="backFromLeaderboard" class="menuButton secondary">Back</button>
+    <div class="menuScreen leaderboardScreen">
+      <div class="leaderboardPanel">
+        <h1 class="menuTitle leaderboardTitle">Leaderboard</h1>
+
+        ${leaderboardHTML}
+
+        <div class="leaderboardActions">
+          <button id="refreshLeaderboard" class="menuButton secondary">Refresh</button>
+          <button id="backFromLeaderboard" class="menuButton secondary">Back</button>
+        </div>
       </div>
     </div>
   `;

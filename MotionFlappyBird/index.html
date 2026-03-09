@@ -70,6 +70,17 @@
       filter: none;
     }
 
+    .userStatus {
+      color: #ffffff;
+      font-size: clamp(30px, 4vw, 56px);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: 1px;
+      text-shadow: 0 4px 0 rgba(0, 0, 0, 0.8), 0 8px 12px rgba(0, 0, 0, 0.45);
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
     .menuButton {
       border: 2px solid #ffffff;
       border-radius: 8px;
@@ -172,6 +183,127 @@
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
       z-index: 12;
       pointer-events: none;
+    }
+
+    .leaderboardScreen {
+      padding: 20px;
+    }
+
+    .leaderboardPanel {
+      width: min(92vw, 860px);
+      max-height: min(88vh, 760px);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding: 24px;
+      background: #d2ad74;
+      border: 5px solid #000000;
+      box-shadow: 0 10px 0 rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+    }
+
+    .leaderboardTitle {
+      margin: 0;
+      color: #000000;
+      font-family: "Courier New", monospace;
+      font-size: clamp(34px, 5vw, 52px);
+      letter-spacing: 1px;
+      text-shadow: none;
+      text-align: center;
+    }
+
+    .leaderboardTable {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .leaderboardHeader,
+    .leaderboardRow {
+      display: grid;
+      grid-template-columns: 0.9fr 2.1fr 1fr;
+      align-items: center;
+      column-gap: 12px;
+      padding: 12px 14px;
+      border: 3px solid #000000;
+      color: #000000;
+      font-family: "Courier New", monospace;
+      font-size: clamp(18px, 2.2vw, 28px);
+      font-weight: 700;
+      image-rendering: pixelated;
+    }
+
+    .leaderboardHeader {
+      background: #c2965a;
+      text-transform: uppercase;
+    }
+
+    .leaderboardRow {
+      background: #e4c28b;
+    }
+
+    .leaderboardRow.currentUser {
+      background: #f1dcac;
+      outline: 3px solid #000000;
+      outline-offset: -3px;
+    }
+
+    .leaderboardRank,
+    .leaderboardScore {
+      text-align: center;
+    }
+
+    .leaderboardUser {
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .leaderboardEmpty {
+      color: #000000;
+      background: #e4c28b;
+      border: 3px solid #000000;
+      padding: 16px;
+      text-align: center;
+      font-family: "Courier New", monospace;
+      font-size: clamp(18px, 2.2vw, 28px);
+      font-weight: 700;
+    }
+
+    .leaderboardActions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .leaderboardActions .menuButton.secondary {
+      background: #000000;
+      color: #f6e7cb;
+      border: 3px solid #000000;
+      border-radius: 0;
+      font-family: "Courier New", monospace;
+      font-size: clamp(20px, 2.5vw, 28px);
+      padding: 12px 26px;
+    }
+
+    @media (max-width: 640px) {
+      .leaderboardPanel {
+        width: min(96vw, 860px);
+        padding: 16px;
+        gap: 14px;
+      }
+
+      .leaderboardHeader,
+      .leaderboardRow {
+        grid-template-columns: 0.9fr 1.7fr 1fr;
+        column-gap: 8px;
+        padding: 10px;
+      }
     }
 
     #gameArea {

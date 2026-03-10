@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flappy Bird</title>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #000;
+      background-image: url("./flappy-bird-assets/background-day.png");
+      background-repeat: repeat;
+      background-size: auto;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      position: relative;
+    }
+
+    :root {
+      --camera-feed-margin: 0px;
+      --camera-feed-width: min(
+        640px,
+        30vw,
+        calc(100vw - (var(--camera-feed-margin) * 2)),
+        calc((100vh - (var(--camera-feed-margin) * 2)) * 16 / 9)
+      );
+      --camera-feed-height: calc(var(--camera-feed-width) * 9 / 16);
+    }
+
+    #screenRoot {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .menuScreen {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 40px;
+      z-index: 5;
+      position: relative;
+    }
+
+    .menuTitle {
+      color: #ffffff;
+      font-size: 48px;
+      margin-bottom: 16px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    }
+
+    .menuLogo {
+      width: min(50vw, 900px);
+      height: auto;
+      margin-bottom: 20px;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      filter: none;
+    }
+
+    .userStatus {
+      color: #ffffff;
+      font-size: clamp(30px, 4vw, 56px);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: 1px;
+      text-shadow: 0 4px 0 rgba(0, 0, 0, 0.8), 0 8px 12px rgba(0, 0, 0, 0.45);
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    .menuButton {
+      border: 2px solid #ffffff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .menuButton.primary {
+      font-size: 40px;
+      padding: 24px 44px;
+      background: #58D858;
+      color: #ffffff;
+    }
+
+    .menuButton.secondary {
+      font-size: 32px;
+      padding: 20px 36px;
+      background: rgba(0, 0, 0, 0.45);
+      color: #ffffff;
+    }
+
+    #mainMenu .menuControlsRow {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(20px, 5vw, 64px);
+      padding: 0 24px;
+    }
+
+    #mainMenu .menuPinchArt {
+      width: clamp(144px, 24vw, 360px);
+      height: auto;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    #mainMenu .menuButtonGrid {
+      width: min(33vw, 760px);
+      min-width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    #mainMenu #startGameButton {
+      width: 100%;
+      padding: 24px 36px;
+      line-height: 1;
+    }
+
+    #mainMenu .menuSecondaryRow {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      width: 100%;
+    }
+
+    #mainMenu .menuSecondaryRow .menuButton {
+      width: 100%;
+      padding: 18px 16px;
+      font-size: clamp(24px, 2vw, 32px);
+      line-height: 1;
+    }
+
+    @media (max-width: 900px) {
+      #mainMenu .menuControlsRow {
+        gap: 16px;
+      }
+
+      #mainMenu .menuButtonGrid {
+        width: min(88vw, 620px);
+        min-width: 0;
+      }
+
+      #mainMenu .menuPinchArt {
+        width: clamp(112px, 20vw, 192px);
+      }
+    }
+
+    @media (max-width: 640px) {
+      #mainMenu .menuControlsRow {
+        padding: 0 10px;
+      }
+
+      #mainMenu .menuPinchArt {
+        display: none;
+      }
+    }
+
+    .menuInstruction {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #ffffff;
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      z-index: 12;
+      pointer-events: none;
+    }
+
+    .leaderboardScreen {
+      padding: 20px;
+    }
+
+    .leaderboardPanel {
+      width: min(92vw, 860px);
+      max-height: min(88vh, 760px);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding: 24px;
+      background: #d2ad74;
+      border: 5px solid #000000;
+      box-shadow: 0 10px 0 rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+    }
+
+    .leaderboardTitle {
+      margin: 0;
+      color: #000000;
+      font-family: "Courier New", monospace;
+      font-size: clamp(34px, 5vw, 52px);
+      letter-spacing: 1px;
+      text-shadow: none;
+      text-align: center;
+    }
+
+    .leaderboardTable {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .leaderboardHeader,
+    .leaderboardRow {
+      display: grid;
+      grid-template-columns: 0.9fr 2.1fr 1fr;
+      align-items: center;
+      column-gap: 12px;
+      padding: 12px 14px;
+      border: 3px solid #000000;
+      color: #000000;
+      font-family: "Courier New", monospace;
+      font-size: clamp(18px, 2.2vw, 28px);
+      font-weight: 700;
+      image-rendering: pixelated;
+    }
+
+    .leaderboardHeader {
+      background: #c2965a;
+      text-transform: uppercase;
+    }
+
+    .leaderboardRow {
+      background: #e4c28b;
+    }
+
+    .leaderboardRow.currentUser {
+      background: #f1dcac;
+      outline: 3px solid #000000;
+      outline-offset: -3px;
+    }
+
+    .leaderboardRank,
+    .leaderboardScore {
+      text-align: center;
+    }
+
+    .leaderboardUser {
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .leaderboardEmpty {
+      color: #000000;
+      background: #e4c28b;
+      border: 3px solid #000000;
+      padding: 16px;
+      text-align: center;
+      font-family: "Courier New", monospace;
+      font-size: clamp(18px, 2.2vw, 28px);
+      font-weight: 700;
+    }
+
+    .leaderboardActions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .leaderboardActions .menuButton.secondary {
+      background: #000000;
+      color: #f6e7cb;
+      border: 3px solid #000000;
+      border-radius: 0;
+      font-family: "Courier New", monospace;
+      font-size: clamp(20px, 2.5vw, 28px);
+      padding: 12px 26px;
+    }
+
+    @media (max-width: 640px) {
+      .leaderboardPanel {
+        width: min(96vw, 860px);
+        padding: 16px;
+        gap: 14px;
+      }
+
+      .leaderboardHeader,
+      .leaderboardRow {
+        grid-template-columns: 0.9fr 1.7fr 1fr;
+        column-gap: 8px;
+        padding: 10px;
+      }
+    }
+
+    #gameArea {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      background-color: transparent;
+    }
+
+    #gameCanvas {
+      display: block;
+      image-rendering: pixelated;
+    }
+
+    #cameraFeed {
+      position: fixed;
+      top: var(--camera-feed-margin);
+      left: var(--camera-feed-margin);
+      width: var(--camera-feed-width);
+      aspect-ratio: 16 / 9;
+      border: 2px solid #ffffff;
+      box-sizing: border-box;
+      overflow: hidden;
+      z-index: 30;
+    }
+
+    #video,
+    #canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transform: scaleX(-1); /* mirror like a selfie */
+    }
+
+    #video {
+      object-fit: cover;
+    }
+
+    #canvas {
+      pointer-events: none;
+    }
+
+    #hud {
+      position: fixed;
+      top: calc(var(--camera-feed-margin) + var(--camera-feed-height) + 12px);
+      left: var(--camera-feed-margin);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+      font-size: 28px;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+      color: #fff;
+      z-index: 20;
+      background: rgba(0, 0, 0, 0.35);
+      border: 2px solid #ffffff;
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .hudRow {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    #cameraInstructions {
+      position: fixed;
+      top: calc(var(--camera-feed-margin) + var(--camera-feed-height) + 12px);
+      left: var(--camera-feed-margin);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+      z-index: 25;
+      background: rgba(0, 0, 0, 0.35);
+      border: 2px solid #ffffff;
+      border-radius: 8px;
+      padding: 8px;
+    }
+
+    #squatGuide {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: clamp(220px, 28vw, 560px);
+      max-height: 42vh;
+      height: auto;
+      object-fit: contain;
+      image-rendering: pixelated;
+      z-index: 26;
+      pointer-events: none;
+    }
+
+    #nameGenOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    #nameGenPanel {
+      background: #d2ad74;
+      border: 5px solid #000;
+      box-shadow: 0 10px 0 rgba(0,0,0,0.5);
+      padding: 32px 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+      width: min(92vw, 560px);
+      font-family: "Courier New", monospace;
+    }
+
+    #nameGenPanel h2 {
+      font-size: clamp(26px, 4vw, 38px);
+      font-weight: 900;
+      color: #000;
+      margin: 0;
+      text-align: center;
+    }
+
+    #nameGenPanel .nameGenScore {
+      font-size: clamp(20px, 3vw, 30px);
+      font-weight: 700;
+      color: #000;
+    }
+
+    .nameGenRow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .nameGenWord {
+      font-size: clamp(22px, 3.5vw, 34px);
+      font-weight: 900;
+      color: #000;
+      background: #e4c28b;
+      border: 3px solid #000;
+      padding: 10px 18px;
+      min-width: 160px;
+      text-align: center;
+      flex: 1;
+    }
+
+    .nameGenReroll {
+      background: #000;
+      color: #f6e7cb;
+      border: 3px solid #000;
+      font-family: "Courier New", monospace;
+      font-size: clamp(18px, 2.5vw, 24px);
+      font-weight: 700;
+      padding: 10px 16px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .nameGenReroll:hover {
+      background: #333;
+    }
+
+    #nameGenPreview {
+      font-size: clamp(24px, 3.8vw, 40px);
+      font-weight: 900;
+      color: #000;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    .nameGenActions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .nameGenActions button {
+      background: #000;
+      color: #f6e7cb;
+      border: 3px solid #000;
+      font-family: "Courier New", monospace;
+      font-size: clamp(18px, 2.5vw, 26px);
+      font-weight: 700;
+      padding: 12px 28px;
+      cursor: pointer;
+    }
+
+    .nameGenActions button:hover {
+      background: #333;
+    }
+
+    .nameGenActions button.nameGenSubmit {
+      background: #58D858;
+      color: #fff;
+      border-color: #000;
+    }
+
+    .nameGenActions button.nameGenSubmit:hover {
+      background: #46c246;
+    }
+  </style>
+</head>
+<body>
+  <div id="cameraFeed">
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+  </div>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

@@ -2,7 +2,7 @@ import { initHandTracking, stopHandTracking } from "./mediapipe/handTracking.js"
 import { isPinching } from "./mediapipe/pinchDetector.js";
 import { renderSettingsView } from "./Menu_Components/settings.js";
 import { renderLeaderboardView, showNameGeneratorModal } from "./Menu_Components/leaderboard.js";
-import { renderLoginView, getCurrentUser, logout, saveScore } from "./Menu_Components/login.js";
+import { getCurrentUser, saveScore } from "./Menu_Components/login.js";
 
 const cursor = document.createElement("div");
 cursor.style.position = "fixed";
@@ -107,7 +107,6 @@ function renderMainMenu() {
             <button id="settingsButton" class="menuButton secondary">Settings</button>
             <button id="leaderboardButton" class="menuButton secondary">Leaderboard</button>
           </div>
-          <button id="loginButton" class="menuButton secondary">${currentUsername ? 'Logout' : 'Login'}</button>
         </div>
 
         <img src="./flappy-bird-assets/pinch.png" alt="Pinch gesture" class="menuPinchArt" />
@@ -119,16 +118,8 @@ function renderMainMenu() {
   const startGameButton = document.getElementById("startGameButton");
   const settingsButton = document.getElementById("settingsButton");
   const leaderboardButton = document.getElementById("leaderboardButton");
-  const loginButton = document.getElementById("loginButton");
 
   startGameButton?.addEventListener("click", () => {
-    // if (!currentUsername) {
-    //   renderLoginView(screenRoot, (username) => {
-    //     currentUsername = username;
-    //     renderMainMenu();
-    //   }, renderMainMenu);
-    //   return;
-    // }
     startMotionFlappyBird();
   });
 
@@ -138,19 +129,6 @@ function renderMainMenu() {
 
   leaderboardButton?.addEventListener("click", () => {
     renderLeaderboardView(screenRoot, renderMainMenu);
-  });
-
-  loginButton?.addEventListener("click", () => {
-    if (currentUsername) {
-      logout();
-      currentUsername = null;
-      renderMainMenu();
-    } else {
-      renderLoginView(screenRoot, (username) => {
-        currentUsername = username;
-        renderMainMenu();
-      }, renderMainMenu);
-    }
   });
 }
 
@@ -243,15 +221,6 @@ async function handleHandTrackingResults(results) {
 
   if (hoveredButton && isFreshPinch) {
     if (hoveredButton.id === "startGameButton") {
-      //going to remove login screen for current demo
-      // if (!currentUsername) {
-      //   renderLoginView(screenRoot, (username) => {
-      //     currentUsername = username;
-      //     renderMainMenu();
-      //   }, renderMainMenu);
-      //   wasPinchingLastFrame = false;
-      //   return;
-      // }
       hoveredButton.innerText = "Loading...";
       console.log("Start selected via pinch!");
       await startMotionFlappyBird();

@@ -71,7 +71,7 @@ export async function initHandTracking(videoElement, canvasElement, onResultsCal
       landmarks.forEach((landmark, index) => {
       let circleSize = 3;
       let color =  "#ffffff"; 
-        if (index === 8) {// Index 8 is the index finger tip
+        if (index === 5) {// Index 5 base of index finger
            color = "#FF0000";
            circleSize = 7;
         }
@@ -82,6 +82,8 @@ export async function initHandTracking(videoElement, canvasElement, onResultsCal
       });
     }
 
+
+    console.log("Hand Tracking is running");
     onResultsCallback(results);
   });
 
@@ -119,4 +121,6 @@ export async function stopHandTracking() {
   activeHands = null;
   activeCanvas = null;
   activeCtx = null;
+
+ console.log("Hand Tracking disabled");
 }

@@ -11,7 +11,7 @@ cursor.style.height = "20px";
 cursor.style.background = "red";
 cursor.style.borderRadius = "50%";
 cursor.style.pointerEvents = "none";
-cursor.style.zIndex = "999";
+cursor.style.zIndex = "3000";
 document.body.appendChild(cursor);
 
 const screenRoot = document.createElement("div");
@@ -44,7 +44,8 @@ async function ensureHandTrackingRunning() {
  */
 function getHoveredMenuButton(x, y) {
   const nameGenOverlay = document.getElementById("nameGenOverlay");
-  const containers = nameGenOverlay ? [nameGenOverlay, screenRoot] : [screenRoot];
+  const postDeathActions = document.getElementById("postDeathActions");
+  const containers = [nameGenOverlay, postDeathActions, screenRoot].filter(Boolean);
 
   for (const container of containers) {
     const buttons = container.querySelectorAll("button");
@@ -91,11 +92,9 @@ function renderMainMenu() {
     console.error("Failed to start hand tracking:", error);
   });
   currentUsername = getCurrentUser();
-  const userGreeting = currentUsername ? `Welcome, ${currentUsername}!` : "Not logged in";
 
   screenRoot.innerHTML = `
     <div id="mainMenu" class="menuScreen">
-      <div class="userStatus">${userGreeting}</div>
       <img src="./flappy-bird-assets/logo.png" alt="Motion Flappy Bird" class="menuLogo" />
       <div class="menuControlsRow">
         <img src="./flappy-bird-assets/pinch.png" alt="Pinch gesture" class="menuPinchArt" />
@@ -197,7 +196,8 @@ async function startMotionFlappyBird() {
  */
 async function handleHandTrackingResults(results) {
   const nameGenOpen = !!document.getElementById("nameGenOverlay");
-  if (!results.multiHandLandmarks || (gameStarted && !nameGenOpen)) {
+  const postDeathActionsOpen = !!document.getElementById("postDeathActions");
+  if (!results.multiHandLandmarks || (gameStarted && !nameGenOpen && !postDeathActionsOpen)) {
     wasPinchingLastFrame = false;
     return;
   }
@@ -207,10 +207,10 @@ async function handleHandTrackingResults(results) {
     return;
   }
 
-  const indexTip = landmarks[8];
+  const indexBase = landmarks[5];
 
-  const x = (1 - indexTip.x) * window.innerWidth;
-  const y = indexTip.y * window.innerHeight;
+  const x = (1 - indexBase.x) * window.innerWidth;
+  const y = indexBase.y * window.innerHeight;
 
   cursor.style.left = `${x}px`;
   cursor.style.top = `${y}px`;
@@ -244,13 +244,71 @@ window.addEventListener("flappyDied", (e) => {
     console.error("Failed to start hand tracking for modal:", error);
   });
   showNameGeneratorModal(finalScore, async () => {
-    setMenuTrackingOverlayVisibility(false);
-    wasPinchingLastFrame = false;
-    if (isHandTrackingRunning) {
-      await stopHandTracking();
-      isHandTrackingRunning = false;
+    const existingActions = document.getElementById("postDeathActions");
+    if (existingActions) {
+      existingActions.remove();
     }
-    const { resetDetector } = await import("./movenet/detector.js");
-    await resetDetector();
+
+    const actions = document.createElement("div");
+    actions.id = "postDeathActions";
+    actions.style.position = "fixed";
+    actions.style.left = "50%";
+    actions.style.bottom = "48px";
+    actions.style.transform = "translateX(-50%)";
+    actions.style.zIndex = "1000";
+    actions.style.display = "flex";
+    actions.style.gap = "24px";
+
+    const menuButton = document.createElement("button");
+    menuButton.id = "menuFromDeadButton";
+    menuButton.textContent = "MENU";
+
+    const playAgainButton = document.createElement("button");
+    playAgainButton.id = "playAgainFromDeadButton";
+    playAgainButton.textContent = "PLAY AGAIN";
+
+    const configureActionButton = (button) => {
+      button.style.minWidth = "240px";
+      button.style.height = "96px";
+      button.style.fontSize = "34px";
+      button.style.fontWeight = "900";
+      button.style.fontFamily = "'Arial Black', Arial, sans-serif";
+      button.style.color = "#ffffff";
+      button.style.background = "#16a34a";
+      button.style.border = "4px solid #0f7a38";
+      button.style.borderRadius = "18px";
+      button.style.cursor = "pointer";
+      button.style.boxShadow = "0 10px 0 #0d6f33";
+    };
+
+    configureActionButton(menuButton);
+    configureActionButton(playAgainButton);
+
+    menuButton.addEventListener("click", async () => {
+      const { goToMenuFromDead } = await import("../game/flappy.js");
+      goToMenuFromDead();
+      actions.remove();
+      window.location.reload();
+    });
+
+    playAgainButton.addEventListener("click", async () => {
+
+       if (isHandTrackingRunning) {
+    await stopHandTracking();
+    isHandTrackingRunning = false;
+  }
+  
+      const { resetDetector } = await import("./movenet/detector.js");
+      await resetDetector();
+
+      const { restartFromDead } = await import("../game/flappy.js");
+      restartFromDead();
+      actions.remove();
+      setMenuTrackingOverlayVisibility(false);
+    });
+
+    actions.appendChild(menuButton);
+    actions.appendChild(playAgainButton);
+    document.body.appendChild(actions);
   });
 });

@@ -175,9 +175,6 @@ export function drawGame(renderState) {
     const goW = img.gameover.width * 2;
     ctx.drawImage(img.gameover, (gameWidth - goW) / 2, gameHeight / 2 - 200, goW, img.gameover.height * 2);
 
-    const rW = img.reset.width * 2;
-    const rH = img.reset.height * 2;
-    ctx.drawImage(img.reset, (gameWidth - rW) / 2, (gameHeight - rH) / 2 + 150, rW, rH);
     drawScorePanel(ctx, score, bestScore, gameWidth, gameHeight, img);
   }
 }

@@ -41,7 +41,6 @@ import { drawGame } from "./DisplayGame/renderGame.js";
     birdUp: "yellowbird-upflap.png",
     message: "message.png",
     gameover: "gameover.png",
-    reset: "reset.png",
     egg: "egg.png",
     brokenEgg: "broken-egg.png",
     d0: "0.png",

@@ -5,7 +5,7 @@ Main heart of tensorflow movenet set up
 // Import TensorFlow.js and the MoveNet pose detection model.
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import * as tf from '@tensorflow/tfjs';
-import {isPositionAFlap, isPersonInFrame, getDeadStateWristSelection, isPositionAnEggDrop} from './movement-calculations.js';
+import {isPositionAFlap, isPersonInFrame, isPositionAnEggDrop} from './movement-calculations.js';
 import { drawSkeleton, drawKeypoints, setDrawContext } from './draw.js';
 import { flap, isDeadState, restartFromDead, spawnEgg } from '../../game/flappy.js'
 
@@ -92,32 +92,15 @@ async function main() {
       drawKeypoints(pose?.keypoints || []);
       drawSkeleton(kp);
 
-      if (isDeadState()) {
-        const selection = getDeadStateWristSelection(kp);
-
-        if (!selection) {
-          deadSelectionLocked = false;
-        } else if (!deadSelectionLocked) {
-          deadSelectionLocked = true;
-
-          if (selection === 'left') {
-            window.location.reload();
-          } else if (selection === 'right') {
-            restartFromDead();
-          }
-        }
-      } else {
         deadSelectionLocked = false;
-        console.log("howdy");
         if (isPositionAFlap(kp)) {
           flap();
         }
         if (isPositionAnEggDrop(kp)) {
           spawnEgg();
         }
-      }
   }
-
+  console.log("Looping movenet");
   requestAnimationFrame(render); //draws the new frame on the next broswer repaint and calls render continuing the loop
 }
 

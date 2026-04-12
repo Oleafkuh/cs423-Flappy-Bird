@@ -80,8 +80,8 @@ export function isPositionAnEggDrop(kp) {
     }
 
     const shoulderY = (kp.left_shoulder.y + kp.right_shoulder.y) / 2;
-    const DROP_TRIGGER_OFFSET = 45;
-    const RESET_OFFSET = 14;
+    const DROP_TRIGGER_OFFSET = 20;
+    const RESET_OFFSET = 10;
 
     if (eggDropBaselineY === null) {
       eggDropBaselineY = shoulderY;

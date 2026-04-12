@@ -47,13 +47,15 @@ export function showNameGeneratorModal(score, onDone) {
         </div>
 
         <div class="nameGenRow">
+         <button class="nameGenReroll" data-reroll="adj">&#x21BB; Reroll</button>
           <div class="nameGenWord" id="nameGenAdj">${adjective}</div>
-          <button class="nameGenReroll" id="rerollAdj">&#x21BB; Reroll</button>
+          <button class="nameGenReroll" data-reroll="adj">&#x21BB; Reroll</button>
         </div>
 
         <div class="nameGenRow">
+        <button class="nameGenReroll" data-reroll="noun">&#x21BB; Reroll</button>
           <div class="nameGenWord" id="nameGenNoun">${noun}</div>
-          <button class="nameGenReroll" id="rerollNoun">&#x21BB; Reroll</button>
+          <button class="nameGenReroll" data-reroll="noun">&#x21BB; Reroll</button>
         </div>
 
         <div id="nameGenPreview">${adjective} ${noun}</div>
@@ -65,16 +67,22 @@ export function showNameGeneratorModal(score, onDone) {
       </div>
     `;
 
-    overlay.querySelector("#rerollAdj").addEventListener("click", () => {
-      adjective = randomFrom(ADJECTIVES);
-      overlay.querySelector("#nameGenAdj").textContent = adjective;
-      overlay.querySelector("#nameGenPreview").textContent = `${adjective} ${noun}`;
+    const rerollAdjButtons = overlay.querySelectorAll('[data-reroll="adj"]');
+    rerollAdjButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        adjective = randomFrom(ADJECTIVES);
+        overlay.querySelector("#nameGenAdj").textContent = adjective;
+        overlay.querySelector("#nameGenPreview").textContent = `${adjective} ${noun}`;
+      });
     });
 
-    overlay.querySelector("#rerollNoun").addEventListener("click", () => {
-      noun = randomFrom(NOUNS);
-      overlay.querySelector("#nameGenNoun").textContent = noun;
-      overlay.querySelector("#nameGenPreview").textContent = `${adjective} ${noun}`;
+    const rerollNounButtons = overlay.querySelectorAll('[data-reroll="noun"]');
+    rerollNounButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        noun = randomFrom(NOUNS);
+        overlay.querySelector("#nameGenNoun").textContent = noun;
+        overlay.querySelector("#nameGenPreview").textContent = `${adjective} ${noun}`;
+      });
     });
 
     overlay.querySelector("#nameGenSubmitBtn").addEventListener("click", () => {
@@ -89,7 +97,7 @@ export function showNameGeneratorModal(score, onDone) {
       onDone();
     });
   }
-
+ 
   renderOverlay();
   document.body.appendChild(overlay);
 }

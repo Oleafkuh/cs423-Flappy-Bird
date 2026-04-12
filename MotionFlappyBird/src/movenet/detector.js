@@ -7,12 +7,39 @@ import * as poseDetection from '@tensorflow-models/pose-detection';
 import * as tf from '@tensorflow/tfjs';
 import {isPositionAFlap, isPersonInFrame, isPositionAnEggDrop} from './movement-calculations.js';
 import { drawSkeleton, drawKeypoints, setDrawContext } from './draw.js';
-import { flap, isDeadState, restartFromDead, spawnEgg } from '../../game/flappy.js'
 
 let isDetectorStarted = false;
 let deadSelectionLocked = false;
+let detectorPromise = null;
+let flappyModulePromise = null;
 const CAMERA_WIDTH = 1280;
 const CAMERA_HEIGHT = 720;
+
+async function ensureMoveNetDetector() {
+  if (!detectorPromise) {
+    detectorPromise = (async () => {
+      await tf.setBackend('webgl');
+      await tf.ready();
+
+      return poseDetection.createDetector(
+        poseDetection.SupportedModels.MoveNet,
+        {
+          modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
+        }
+      );
+    })();
+  }
+
+  return detectorPromise;
+}
+
+async function getFlappyModule() {
+  if (!flappyModulePromise) {
+    flappyModulePromise = import('../../game/flappy.js');
+  }
+
+  return flappyModulePromise;
+}
 
 // Request webcam access and wait until the video metadata is ready.
 async function setupCamera() {
@@ -56,8 +83,6 @@ function keypointsToMap(keypoints) {
 
 // Main setup: initialize camera, canvas, model, and the render loop.
 async function main() {
-  await tf.setBackend('webgl');
-
   const video = document.getElementById('video');
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
@@ -69,13 +94,8 @@ async function main() {
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
 
-  // Create a MoveNet detector (single-person, lightweight model).
-  const detector = await poseDetection.createDetector(
-    poseDetection.SupportedModels.MoveNet,
-    {
-      modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
-    }
-  );
+  // Reuse a preloaded detector so first gameplay start is faster.
+  const detector = await ensureMoveNetDetector();
   console.log("detector up and running");
 
   // Render loop: run pose estimation and draw each frame.
@@ -92,15 +112,16 @@ async function main() {
       drawKeypoints(pose?.keypoints || []);
       drawSkeleton(kp);
 
+      const flappy = await getFlappyModule();
+
         deadSelectionLocked = false;
         if (isPositionAFlap(kp)) {
-          flap();
+          flappy.flap();
         }
         if (isPositionAnEggDrop(kp)) {
-          spawnEgg();
+          flappy.spawnEgg();
         }
   }
-  console.log("Looping movenet");
   requestAnimationFrame(render); //draws the new frame on the next broswer repaint and calls render continuing the loop
 }
 
@@ -115,6 +136,14 @@ export async function startDetector() {
 
   isDetectorStarted = true;
   await main();
+}
+
+export function preloadDetector() {
+  ensureMoveNetDetector().catch((error) => {
+    // Allow retry later if preload failed.
+    detectorPromise = null;
+    console.warn('MoveNet preload failed:', error);
+  });
 }
 
 export async function resetDetector() {

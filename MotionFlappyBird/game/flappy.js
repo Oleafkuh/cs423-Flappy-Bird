@@ -380,7 +380,7 @@ export function spawnEgg() {
           bestScore = score;
           localStorage.setItem("flappyBest", bestScore.toString());
         }
-        window.dispatchEvent(new CustomEvent("flappyDied", { detail: { score } }));
+        window.dispatchEvent(new CustomEvent("flappyDied", { detail: { score  } }));
       }
     }
   }

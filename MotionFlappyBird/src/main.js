@@ -22,6 +22,16 @@ let gameStarted = false;
 let wasPinchingLastFrame = false;
 let isHandTrackingRunning = false;
 let currentUsername = getCurrentUser();
+let detectorPreloadStarted = false;
+
+const CURSOR_X_GAIN = 1.8;
+const CURSOR_Y_GAIN = 2.2;
+
+function mapCursorAxis(normalizedValue, gain) {
+  const centered = normalizedValue - 0.5;
+  const amplified = 0.5 + centered * gain;
+  return Math.max(0, Math.min(1, amplified));
+}
 
 const sharedVideo = document.getElementById("video");
 const sharedCanvas = document.getElementById("canvas");
@@ -33,6 +43,21 @@ async function ensureHandTrackingRunning() {
 
   await initHandTracking(sharedVideo, sharedCanvas, handleHandTrackingResults);
   isHandTrackingRunning = true;
+}
+
+function preloadMoveNetDetector() {
+  if (detectorPreloadStarted) {
+    return;
+  }
+
+  detectorPreloadStarted = true;
+  import("./movenet/detector.js")
+    .then(({ preloadDetector }) => {
+      preloadDetector();
+    })
+    .catch((error) => {
+      console.warn("MoveNet preload skipped:", error);
+    });
 }
 
 /**
@@ -110,7 +135,6 @@ function renderMainMenu() {
 
         <img src="./flappy-bird-assets/pinch.png" alt="Pinch gesture" class="menuPinchArt" />
       </div>
-      <div class="menuInstruction">Pinch to select</div>
     </div>
   `;
 
@@ -209,8 +233,11 @@ async function handleHandTrackingResults(results) {
 
   const indexBase = landmarks[5];
 
-  const x = (1 - indexBase.x) * window.innerWidth;
-  const y = indexBase.y * window.innerHeight;
+  const mappedX = mapCursorAxis(1 - indexBase.x, CURSOR_X_GAIN);
+  const mappedY = mapCursorAxis(indexBase.y, CURSOR_Y_GAIN);
+
+  const x = mappedX * window.innerWidth;
+  const y = mappedY * window.innerHeight;
 
   cursor.style.left = `${x}px`;
   cursor.style.top = `${y}px`;
@@ -235,29 +262,37 @@ async function handleHandTrackingResults(results) {
 }
 
 renderMainMenu();
+preloadMoveNetDetector();
 
 window.addEventListener("flappyDied", (e) => {
   const finalScore = e.detail.score;
+  const BestScore = e.detail.score;
+  const squatGuide = document.getElementById("squatGuide");
+  if (squatGuide) {
+    squatGuide.style.display = "none";
+  }
+
   setMenuTrackingOverlayVisibility(true);
   wasPinchingLastFrame = false;
   ensureHandTrackingRunning().catch((error) => {
     console.error("Failed to start hand tracking for modal:", error);
   });
+
   showNameGeneratorModal(finalScore, async () => {
     const existingActions = document.getElementById("postDeathActions");
     if (existingActions) {
-      existingActions.remove();
+      existingActions.isVisible(false);
     }
 
     const actions = document.createElement("div");
     actions.id = "postDeathActions";
     actions.style.position = "fixed";
     actions.style.left = "50%";
-    actions.style.bottom = "48px";
+    actions.style.bottom = "100px";
     actions.style.transform = "translateX(-50%)";
     actions.style.zIndex = "1000";
     actions.style.display = "flex";
-    actions.style.gap = "24px";
+    actions.style.gap = "40px";
 
     const menuButton = document.createElement("button");
     menuButton.id = "menuFromDeadButton";
@@ -268,8 +303,8 @@ window.addEventListener("flappyDied", (e) => {
     playAgainButton.textContent = "PLAY AGAIN";
 
     const configureActionButton = (button) => {
-      button.style.minWidth = "240px";
-      button.style.height = "96px";
+      button.style.minWidth = "300px";
+      button.style.height = "150px";
       button.style.fontSize = "34px";
       button.style.fontWeight = "900";
       button.style.fontFamily = "'Arial Black', Arial, sans-serif";
@@ -305,6 +340,7 @@ window.addEventListener("flappyDied", (e) => {
       restartFromDead();
       actions.remove();
       setMenuTrackingOverlayVisibility(false);
+      squatGuide.style.display = "block";
     });
 
     actions.appendChild(menuButton);

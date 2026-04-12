@@ -109,6 +109,7 @@
       justify-content: center;
       gap: clamp(20px, 5vw, 64px);
       padding: 0 24px;
+      margin-top: -56px;
     }
 
     #mainMenu .menuPinchArt {
@@ -119,7 +120,7 @@
     }
 
     #mainMenu .menuButtonGrid {
-      width: min(33vw, 760px);
+      width: min(44vw, 920px);
       min-width: 320px;
       display: flex;
       flex-direction: column;
@@ -134,14 +135,14 @@
 
     #mainMenu .menuSecondaryRow {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(240px, 1fr));
       gap: 26px;
       width: 100%;
     }
 
     #mainMenu .menuSecondaryRow .menuButton {
       width: 100%;
-      padding: 18px 16px;
+      padding: 18px 34px;
       font-size: clamp(24px, 2vw, 32px);
       line-height: 1;
     }
@@ -154,6 +155,10 @@
       #mainMenu .menuButtonGrid {
         width: min(88vw, 620px);
         min-width: 0;
+      }
+
+      #mainMenu .menuSecondaryRow {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       #mainMenu .menuPinchArt {

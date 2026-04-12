@@ -129,6 +129,7 @@ import { drawGame } from "./DisplayGame/renderGame.js";
   let state = STATE_MENU;
   let score = 0;
   let bestScore = parseInt(localStorage.getItem("flappyBest") || "0", 10);
+  let newHighScore = false;
 
   // Bird
   let birdY = 0;
@@ -165,6 +166,7 @@ import { drawGame } from "./DisplayGame/renderGame.js";
     score = 0;
     baseX = 0;
     frameCount = 0;
+    newHighScore = false;
   }
 
 export function spawnEgg() {
@@ -379,8 +381,9 @@ export function spawnEgg() {
         if (score > bestScore) {
           bestScore = score;
           localStorage.setItem("flappyBest", bestScore.toString());
+          newHighScore = true;
         }
-        window.dispatchEvent(new CustomEvent("flappyDied", { detail: { score  } }));
+        window.dispatchEvent(new CustomEvent("flappyDied", { detail: { score, newHighScore  } }));
       }
     }
   }

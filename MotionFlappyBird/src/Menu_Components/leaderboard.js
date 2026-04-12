@@ -40,7 +40,7 @@ export function showNameGeneratorModal(score, onDone) {
   function renderOverlay() {
     overlay.innerHTML = `
       <div id="nameGenPanel">
-        <h2>You Died!</h2>
+        <h1>NEW HIGHSCORE!</h1>
         <div class="nameGenScore">Score: ${score}</div>
         <div style="font-family:'Courier New',monospace; font-size:clamp(14px,2vw,18px); color:#000; text-align:center;">
           Enter your name to join the leaderboard

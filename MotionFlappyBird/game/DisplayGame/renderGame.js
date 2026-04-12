@@ -19,6 +19,91 @@ const PIXEL_FONT = {
   " ": ["000", "000", "000", "000", "000", "000", "000"],
 };
 
+const POST_DEATH_ACTIONS_ID = "postDeathActions";
+
+function getPostDeathActionsContainer() {
+  return document.getElementById(POST_DEATH_ACTIONS_ID);
+}
+
+function removePostDeathActions() {
+  const actions = getPostDeathActionsContainer();
+  if (actions) {
+    actions.remove();
+  }
+}
+
+function configureActionButton(button) {
+  button.style.minWidth = "300px";
+  button.style.height = "150px";
+  button.style.fontSize = "34px";
+  button.style.fontWeight = "900";
+  button.style.fontFamily = "'Arial Black', Arial, sans-serif";
+  button.style.color = "#ffffff";
+  button.style.background = "#16a34a";
+  button.style.border = "4px solid #0f7a38";
+  button.style.borderRadius = "18px";
+  button.style.cursor = "pointer";
+  button.style.boxShadow = "0 10px 0 #0d6f33";
+}
+
+
+//creates style and logic for the two buttons displayed when the user dies  ( MENU &  PLAY AGAIN )
+function createPostDeathActions() {
+  const actions = document.createElement("div");
+  actions.id = POST_DEATH_ACTIONS_ID;
+  actions.style.position = "fixed";
+  actions.style.left = "50%";
+  actions.style.bottom = "100px";
+  actions.style.transform = "translateX(-50%)";
+  actions.style.zIndex = "1000";
+  actions.style.display = "flex";
+  actions.style.gap = "40px";
+
+  const menuButton = document.createElement("button");
+  menuButton.id = "menuFromDeadButton";
+  menuButton.textContent = "MENU";
+
+  const playAgainButton = document.createElement("button");
+  playAgainButton.id = "playAgainFromDeadButton";
+  playAgainButton.textContent = "PLAY AGAIN";
+
+  configureActionButton(menuButton);
+  configureActionButton(playAgainButton);
+
+  menuButton.addEventListener("click", async () => {
+    const { goToMenuFromDead } = await import("../flappy.js");
+    goToMenuFromDead();
+    document.body.dataset.postDeathActionsReady = "false";
+    window.dispatchEvent(new CustomEvent("flappyPostDeathAction", { detail: { action: "menu" } }));
+    actions.remove();
+    window.location.reload();
+  });
+
+  playAgainButton.addEventListener("click", async () => {
+    const { restartFromDead } = await import("../flappy.js");
+    restartFromDead();
+    document.body.dataset.postDeathActionsReady = "false";
+    window.dispatchEvent(new CustomEvent("flappyPostDeathAction", { detail: { action: "playAgain" } }));
+    actions.remove();
+  });
+
+  actions.appendChild(menuButton);
+  actions.appendChild(playAgainButton);
+  document.body.appendChild(actions);
+}
+
+function drawMenuandPlayAgainButtons() {
+  const isReady = document.body.dataset.postDeathActionsReady === "true";
+  if (!isReady) {
+    removePostDeathActions();
+    return;
+  }
+
+  if (!getPostDeathActionsContainer()) {
+    createPostDeathActions();
+  }
+}
+
 function digitImg(img, n) {
   return img["d" + n];
 }
@@ -176,5 +261,8 @@ export function drawGame(renderState) {
     ctx.drawImage(img.gameover, (gameWidth - goW) / 2, gameHeight / 2 - 200, goW, img.gameover.height * 2);
 
     drawScorePanel(ctx, score, bestScore, gameWidth, gameHeight, img);
+    drawMenuandPlayAgainButtons();
+  } else {
+    removePostDeathActions();
   }
 }

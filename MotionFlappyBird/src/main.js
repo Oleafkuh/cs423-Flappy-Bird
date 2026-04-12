@@ -168,10 +168,11 @@ function renderMotionFlappyLayout() {
     </div>
 
     <div id="hud">
-      <div id="PersonInFrame" style="color: rgb(255, 0, 0); display: block;"></div>
+      <div id="PersonInFrame" style="color: rgb(255, 0, 0); "></div>
     </div>
     <img id="squatGuide" src="./flappy-bird-assets/squat.png" alt="Squat gesture guide" />
   `;
+  document.getElementById("PersonInFrame").textContent = "GET IN FRAME";
 }
 
 /**
@@ -264,9 +265,30 @@ async function handleHandTrackingResults(results) {
 renderMainMenu();
 preloadMoveNetDetector();
 
+window.addEventListener("flappyPostDeathAction", async (e) => {
+  const action = e?.detail?.action;
+  if (action !== "playAgain") {
+    return;
+  }
+
+  if (isHandTrackingRunning) {
+    await stopHandTracking();
+    isHandTrackingRunning = false;
+  }
+
+  const { resetDetector } = await import("./movenet/detector.js");
+  await resetDetector();
+
+  setMenuTrackingOverlayVisibility(false);
+  const squatGuide = document.getElementById("squatGuide");
+  if (squatGuide) {
+    squatGuide.style.display = "block";
+  }
+});
+
 window.addEventListener("flappyDied", (e) => {
   const finalScore = e.detail.score;
-  const BestScore = e.detail.score;
+  const newHighScore = e.detail.newHighScore;
   const squatGuide = document.getElementById("squatGuide");
   if (squatGuide) {
     squatGuide.style.display = "none";
@@ -274,77 +296,16 @@ window.addEventListener("flappyDied", (e) => {
 
   setMenuTrackingOverlayVisibility(true);
   wasPinchingLastFrame = false;
+  document.body.dataset.postDeathActionsReady = "false";
   ensureHandTrackingRunning().catch((error) => {
     console.error("Failed to start hand tracking for modal:", error);
   });
-
-  showNameGeneratorModal(finalScore, async () => {
-    const existingActions = document.getElementById("postDeathActions");
-    if (existingActions) {
-      existingActions.isVisible(false);
-    }
-
-    const actions = document.createElement("div");
-    actions.id = "postDeathActions";
-    actions.style.position = "fixed";
-    actions.style.left = "50%";
-    actions.style.bottom = "100px";
-    actions.style.transform = "translateX(-50%)";
-    actions.style.zIndex = "1000";
-    actions.style.display = "flex";
-    actions.style.gap = "40px";
-
-    const menuButton = document.createElement("button");
-    menuButton.id = "menuFromDeadButton";
-    menuButton.textContent = "MENU";
-
-    const playAgainButton = document.createElement("button");
-    playAgainButton.id = "playAgainFromDeadButton";
-    playAgainButton.textContent = "PLAY AGAIN";
-
-    const configureActionButton = (button) => {
-      button.style.minWidth = "300px";
-      button.style.height = "150px";
-      button.style.fontSize = "34px";
-      button.style.fontWeight = "900";
-      button.style.fontFamily = "'Arial Black', Arial, sans-serif";
-      button.style.color = "#ffffff";
-      button.style.background = "#16a34a";
-      button.style.border = "4px solid #0f7a38";
-      button.style.borderRadius = "18px";
-      button.style.cursor = "pointer";
-      button.style.boxShadow = "0 10px 0 #0d6f33";
-    };
-
-    configureActionButton(menuButton);
-    configureActionButton(playAgainButton);
-
-    menuButton.addEventListener("click", async () => {
-      const { goToMenuFromDead } = await import("../game/flappy.js");
-      goToMenuFromDead();
-      actions.remove();
-      window.location.reload();
-    });
-
-    playAgainButton.addEventListener("click", async () => {
-
-       if (isHandTrackingRunning) {
-    await stopHandTracking();
-    isHandTrackingRunning = false;
-  }
-  
-      const { resetDetector } = await import("./movenet/detector.js");
-      await resetDetector();
-
-      const { restartFromDead } = await import("../game/flappy.js");
-      restartFromDead();
-      actions.remove();
-      setMenuTrackingOverlayVisibility(false);
-      squatGuide.style.display = "block";
-    });
-
-    actions.appendChild(menuButton);
-    actions.appendChild(playAgainButton);
-    document.body.appendChild(actions);
+ console.log(newHighScore); 
+  if (newHighScore) {
+  showNameGeneratorModal(finalScore, () => {
+    document.body.dataset.postDeathActionsReady = "true";
   });
+} else {
+   document.body.dataset.postDeathActionsReady = "true";
+}
 });

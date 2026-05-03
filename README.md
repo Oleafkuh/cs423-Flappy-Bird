@@ -1,3 +1,16 @@
+## How to Start the project
+
+1. Open a terminal in this folder (`MotionFlappyBird`).
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the Vite dev server:
+   ```bash
+   npm run dev
+   ```
+4. Open the URL shown in the terminal (usually `http://localhost:5173`).
+
 # FullMotion Flappy Bird
 
 FullMotion Flappy Bird is a computer vision powered version of Flappy Bird that replaces traditional keyboard controls with real time body movement and hand gestures. Built using MediaPipe and MoveNet, it turns natural human motion into gameplay input.
